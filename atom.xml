@@ -4,9 +4,9 @@
   <subtitle>Zen in Code</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://codailama.com/"/>
   <updated>2016-09-14T08:59:05.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://codailama.com/</id>
   
   <author>
     <name>Santosh Pingale</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Scraping Alchemist: Celery, Selenium, PhantomJS and TOR</title>
-    <link href="http://yoursite.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/"/>
-    <id>http://yoursite.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</id>
+    <link href="http://codailama.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/"/>
+    <id>http://codailama.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</id>
     <published>2015-09-19T08:25:51.000Z</published>
     <updated>2016-09-14T08:59:05.000Z</updated>
     
@@ -168,39 +168,39 @@
     
     </summary>
     
-      <category term="Architecture" scheme="http://yoursite.com/categories/Architecture/"/>
+      <category term="Architecture" scheme="http://codailama.com/categories/Architecture/"/>
     
-      <category term="Celery" scheme="http://yoursite.com/categories/Architecture/Celery/"/>
+      <category term="Celery" scheme="http://codailama.com/categories/Architecture/Celery/"/>
     
-      <category term="PhantomJS" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/"/>
+      <category term="PhantomJS" scheme="http://codailama.com/categories/Architecture/Celery/PhantomJS/"/>
     
-      <category term="Python" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/"/>
+      <category term="Python" scheme="http://codailama.com/categories/Architecture/Celery/PhantomJS/Python/"/>
     
-      <category term="Scraping" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/"/>
+      <category term="Scraping" scheme="http://codailama.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/"/>
     
-      <category term="Selenium" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/Selenium/"/>
+      <category term="Selenium" scheme="http://codailama.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/Selenium/"/>
     
     
-      <category term="celery" scheme="http://yoursite.com/tags/celery/"/>
+      <category term="celery" scheme="http://codailama.com/tags/celery/"/>
     
-      <category term="flume" scheme="http://yoursite.com/tags/flume/"/>
+      <category term="flume" scheme="http://codailama.com/tags/flume/"/>
     
-      <category term="phantomjs" scheme="http://yoursite.com/tags/phantomjs/"/>
+      <category term="phantomjs" scheme="http://codailama.com/tags/phantomjs/"/>
     
-      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+      <category term="python" scheme="http://codailama.com/tags/python/"/>
     
-      <category term="scraper" scheme="http://yoursite.com/tags/scraper/"/>
+      <category term="scraper" scheme="http://codailama.com/tags/scraper/"/>
     
-      <category term="selenium" scheme="http://yoursite.com/tags/selenium/"/>
+      <category term="selenium" scheme="http://codailama.com/tags/selenium/"/>
     
-      <category term="tor" scheme="http://yoursite.com/tags/tor/"/>
+      <category term="tor" scheme="http://codailama.com/tags/tor/"/>
     
   </entry>
   
   <entry>
     <title>Understanding Java Wrappers and Collections Memory Usage</title>
-    <link href="http://yoursite.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/"/>
-    <id>http://yoursite.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</id>
+    <link href="http://codailama.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/"/>
+    <id>http://codailama.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</id>
     <published>2015-07-14T17:35:37.000Z</published>
     <updated>2016-09-14T09:19:13.000Z</updated>
     
@@ -217,21 +217,21 @@
     
     </summary>
     
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+      <category term="Java" scheme="http://codailama.com/categories/Java/"/>
     
     
-      <category term="heaps" scheme="http://yoursite.com/tags/heaps/"/>
+      <category term="heaps" scheme="http://codailama.com/tags/heaps/"/>
     
-      <category term="Java object" scheme="http://yoursite.com/tags/Java-object/"/>
+      <category term="Java object" scheme="http://codailama.com/tags/Java-object/"/>
     
-      <category term="primitive vs wrappers" scheme="http://yoursite.com/tags/primitive-vs-wrappers/"/>
+      <category term="primitive vs wrappers" scheme="http://codailama.com/tags/primitive-vs-wrappers/"/>
     
   </entry>
   
   <entry>
     <title>Monster : A Centralized Monitoring System With OpenTSDB</title>
-    <link href="http://yoursite.com/2015/04/29/monster-centralized-monitoring-system/"/>
-    <id>http://yoursite.com/2015/04/29/monster-centralized-monitoring-system/</id>
+    <link href="http://codailama.com/2015/04/29/monster-centralized-monitoring-system/"/>
+    <id>http://codailama.com/2015/04/29/monster-centralized-monitoring-system/</id>
     <published>2015-04-29T17:18:00.000Z</published>
     <updated>2016-09-14T09:24:23.000Z</updated>
     
@@ -304,21 +304,21 @@
     
     </summary>
     
-      <category term="Architecture" scheme="http://yoursite.com/categories/Architecture/"/>
+      <category term="Architecture" scheme="http://codailama.com/categories/Architecture/"/>
     
-      <category term="Monitoring" scheme="http://yoursite.com/categories/Architecture/Monitoring/"/>
+      <category term="Monitoring" scheme="http://codailama.com/categories/Architecture/Monitoring/"/>
     
     
-      <category term="Architecture" scheme="http://yoursite.com/tags/Architecture/"/>
+      <category term="Architecture" scheme="http://codailama.com/tags/Architecture/"/>
     
-      <category term="Monitoring" scheme="http://yoursite.com/tags/Monitoring/"/>
+      <category term="Monitoring" scheme="http://codailama.com/tags/Monitoring/"/>
     
   </entry>
   
   <entry>
     <title>#IssueFix: Missing artifact jdk.tools:jdk.tools:jar:1.6 in Eclipse</title>
-    <link href="http://yoursite.com/2015/03/07/issuefix-missing-artifact/"/>
-    <id>http://yoursite.com/2015/03/07/issuefix-missing-artifact/</id>
+    <link href="http://codailama.com/2015/03/07/issuefix-missing-artifact/"/>
+    <id>http://codailama.com/2015/03/07/issuefix-missing-artifact/</id>
     <published>2015-03-07T04:27:00.000Z</published>
     <updated>2016-09-14T09:33:41.000Z</updated>
     
@@ -350,23 +350,23 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+      <category term="Big Data" scheme="http://codailama.com/categories/Big-Data/"/>
     
-      <category term="IssueFix" scheme="http://yoursite.com/categories/Big-Data/IssueFix/"/>
+      <category term="IssueFix" scheme="http://codailama.com/categories/Big-Data/IssueFix/"/>
     
     
-      <category term="Eclipse" scheme="http://yoursite.com/tags/Eclipse/"/>
+      <category term="Eclipse" scheme="http://codailama.com/tags/Eclipse/"/>
     
-      <category term="IssueFix" scheme="http://yoursite.com/tags/IssueFix/"/>
+      <category term="IssueFix" scheme="http://codailama.com/tags/IssueFix/"/>
     
-      <category term="Maven" scheme="http://yoursite.com/tags/Maven/"/>
+      <category term="Maven" scheme="http://codailama.com/tags/Maven/"/>
     
   </entry>
   
   <entry>
     <title>Hive Partitioning: Tips and Hows</title>
-    <link href="http://yoursite.com/2015/03/06/hive-partitioning-tips-and-hows/"/>
-    <id>http://yoursite.com/2015/03/06/hive-partitioning-tips-and-hows/</id>
+    <link href="http://codailama.com/2015/03/06/hive-partitioning-tips-and-hows/"/>
+    <id>http://codailama.com/2015/03/06/hive-partitioning-tips-and-hows/</id>
     <published>2015-03-06T12:36:00.000Z</published>
     <updated>2016-09-14T09:56:41.000Z</updated>
     
@@ -489,21 +489,21 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+      <category term="Big Data" scheme="http://codailama.com/categories/Big-Data/"/>
     
-      <category term="Hive" scheme="http://yoursite.com/categories/Big-Data/Hive/"/>
+      <category term="Hive" scheme="http://codailama.com/categories/Big-Data/Hive/"/>
     
-      <category term="Tutorial" scheme="http://yoursite.com/categories/Big-Data/Hive/Tutorial/"/>
+      <category term="Tutorial" scheme="http://codailama.com/categories/Big-Data/Hive/Tutorial/"/>
     
-      <category term="Uncategorized" scheme="http://yoursite.com/categories/Big-Data/Hive/Tutorial/Uncategorized/"/>
+      <category term="Uncategorized" scheme="http://codailama.com/categories/Big-Data/Hive/Tutorial/Uncategorized/"/>
     
     
   </entry>
   
   <entry>
     <title>HDFS: Expained as Comic!</title>
-    <link href="http://yoursite.com/2015/03/04/hdfs-expained-as-comic/"/>
-    <id>http://yoursite.com/2015/03/04/hdfs-expained-as-comic/</id>
+    <link href="http://codailama.com/2015/03/04/hdfs-expained-as-comic/"/>
+    <id>http://codailama.com/2015/03/04/hdfs-expained-as-comic/</id>
     <published>2015-03-04T10:41:00.000Z</published>
     <updated>2016-09-14T10:09:36.000Z</updated>
     
@@ -521,25 +521,25 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+      <category term="Big Data" scheme="http://codailama.com/categories/Big-Data/"/>
     
-      <category term="HDFS" scheme="http://yoursite.com/categories/Big-Data/HDFS/"/>
+      <category term="HDFS" scheme="http://codailama.com/categories/Big-Data/HDFS/"/>
     
     
-      <category term="Behind-The-Scene" scheme="http://yoursite.com/tags/Behind-The-Scene/"/>
+      <category term="Behind-The-Scene" scheme="http://codailama.com/tags/Behind-The-Scene/"/>
     
-      <category term="Comics" scheme="http://yoursite.com/tags/Comics/"/>
+      <category term="HDFS" scheme="http://codailama.com/tags/HDFS/"/>
     
-      <category term="HDFS" scheme="http://yoursite.com/tags/HDFS/"/>
+      <category term="Tutorial" scheme="http://codailama.com/tags/Tutorial/"/>
     
-      <category term="Tutorial" scheme="http://yoursite.com/tags/Tutorial/"/>
+      <category term="Comics" scheme="http://codailama.com/tags/Comics/"/>
     
   </entry>
   
   <entry>
     <title>#IssueFix : Too many Hive Staging Directories everywhere</title>
-    <link href="http://yoursite.com/2015/03/04/issuefix-too-many-hive-staging/"/>
-    <id>http://yoursite.com/2015/03/04/issuefix-too-many-hive-staging/</id>
+    <link href="http://codailama.com/2015/03/04/issuefix-too-many-hive-staging/"/>
+    <id>http://codailama.com/2015/03/04/issuefix-too-many-hive-staging/</id>
     <published>2015-03-04T10:11:00.000Z</published>
     <updated>2016-09-14T10:22:59.000Z</updated>
     
@@ -570,23 +570,23 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+      <category term="Big Data" scheme="http://codailama.com/categories/Big-Data/"/>
     
-      <category term="Hive" scheme="http://yoursite.com/categories/Big-Data/Hive/"/>
+      <category term="Hive" scheme="http://codailama.com/categories/Big-Data/Hive/"/>
     
-      <category term="IssueFix" scheme="http://yoursite.com/categories/Big-Data/Hive/IssueFix/"/>
+      <category term="IssueFix" scheme="http://codailama.com/categories/Big-Data/Hive/IssueFix/"/>
     
     
-      <category term="IssueFix" scheme="http://yoursite.com/tags/IssueFix/"/>
+      <category term="IssueFix" scheme="http://codailama.com/tags/IssueFix/"/>
     
-      <category term="Hive" scheme="http://yoursite.com/tags/Hive/"/>
+      <category term="Hive" scheme="http://codailama.com/tags/Hive/"/>
     
   </entry>
   
   <entry>
     <title>HDFS: How a file is written!</title>
-    <link href="http://yoursite.com/2015/03/04/hdfs-how-file-is-written/"/>
-    <id>http://yoursite.com/2015/03/04/hdfs-how-file-is-written/</id>
+    <link href="http://codailama.com/2015/03/04/hdfs-how-file-is-written/"/>
+    <id>http://codailama.com/2015/03/04/hdfs-how-file-is-written/</id>
     <published>2015-03-04T07:47:00.000Z</published>
     <updated>2016-09-14T10:38:30.000Z</updated>
     
@@ -669,25 +669,25 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+      <category term="Big Data" scheme="http://codailama.com/categories/Big-Data/"/>
     
-      <category term="HDFS" scheme="http://yoursite.com/categories/Big-Data/HDFS/"/>
+      <category term="HDFS" scheme="http://codailama.com/categories/Big-Data/HDFS/"/>
     
-      <category term="Tutorial" scheme="http://yoursite.com/categories/Big-Data/HDFS/Tutorial/"/>
+      <category term="Tutorial" scheme="http://codailama.com/categories/Big-Data/HDFS/Tutorial/"/>
     
     
-      <category term="Behind-The-Scene" scheme="http://yoursite.com/tags/Behind-The-Scene/"/>
+      <category term="Behind-The-Scene" scheme="http://codailama.com/tags/Behind-The-Scene/"/>
     
-      <category term="HDFS" scheme="http://yoursite.com/tags/HDFS/"/>
+      <category term="HDFS" scheme="http://codailama.com/tags/HDFS/"/>
     
-      <category term="Tutorial" scheme="http://yoursite.com/tags/Tutorial/"/>
+      <category term="Tutorial" scheme="http://codailama.com/tags/Tutorial/"/>
     
   </entry>
   
   <entry>
     <title>JavaScript: Equality !== Truthyness</title>
-    <link href="http://yoursite.com/2015/02/22/javascript-equality-truthyness/"/>
-    <id>http://yoursite.com/2015/02/22/javascript-equality-truthyness/</id>
+    <link href="http://codailama.com/2015/02/22/javascript-equality-truthyness/"/>
+    <id>http://codailama.com/2015/02/22/javascript-equality-truthyness/</id>
     <published>2015-02-22T13:01:07.000Z</published>
     <updated>2016-09-14T10:06:32.000Z</updated>
     
@@ -778,15 +778,15 @@
     
     </summary>
     
-      <category term="Javascript" scheme="http://yoursite.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="http://codailama.com/categories/Javascript/"/>
     
     
   </entry>
   
   <entry>
     <title>CasperJS and Navigation Parallelism</title>
-    <link href="http://yoursite.com/2014/08/25/casperjs-and-navigation-parallelism/"/>
-    <id>http://yoursite.com/2014/08/25/casperjs-and-navigation-parallelism/</id>
+    <link href="http://codailama.com/2014/08/25/casperjs-and-navigation-parallelism/"/>
+    <id>http://codailama.com/2014/08/25/casperjs-and-navigation-parallelism/</id>
     <published>2014-08-25T12:23:14.000Z</published>
     <updated>2016-09-14T10:02:03.000Z</updated>
     
@@ -845,9 +845,9 @@
     
     </summary>
     
-      <category term="Hack" scheme="http://yoursite.com/categories/Hack/"/>
+      <category term="Hack" scheme="http://codailama.com/categories/Hack/"/>
     
-      <category term="Javascript" scheme="http://yoursite.com/categories/Hack/Javascript/"/>
+      <category term="Javascript" scheme="http://codailama.com/categories/Hack/Javascript/"/>
     
     
   </entry>
