@@ -2,9 +2,79 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://yoursite.com/2016/09/12/hello-world/</loc>
+    <loc>http://yoursite.com/2015/03/04/hdfs-how-file-is-written/</loc>
     
-    <lastmod>2016-09-12T17:46:38.000Z</lastmod>
+    <lastmod>2016-09-14T10:38:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/03/04/issuefix-too-many-hive-staging/</loc>
+    
+    <lastmod>2016-09-14T10:22:59.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/03/04/hdfs-expained-as-comic/</loc>
+    
+    <lastmod>2016-09-14T10:09:36.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/02/22/javascript-equality-truthyness/</loc>
+    
+    <lastmod>2016-09-14T10:06:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2014/08/25/casperjs-and-navigation-parallelism/</loc>
+    
+    <lastmod>2016-09-14T10:02:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/03/06/hive-partitioning-tips-and-hows/</loc>
+    
+    <lastmod>2016-09-14T09:56:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/03/07/issuefix-missing-artifact/</loc>
+    
+    <lastmod>2016-09-14T09:33:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/04/29/monster-centralized-monitoring-system/</loc>
+    
+    <lastmod>2016-09-14T09:24:23.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</loc>
+    
+    <lastmod>2016-09-14T09:19:13.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</loc>
+    
+    <lastmod>2016-09-14T08:59:05.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tools/index.html</loc>
+    
+    <lastmod>2016-09-14T08:46:07.000Z</lastmod>
     
   </url>
   

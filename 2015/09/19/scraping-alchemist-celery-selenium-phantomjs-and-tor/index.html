@@ -1,0 +1,138 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Scraping Alchemist: Celery, Selenium, PhantomJS and TOR · Codailama</title><meta name="description" content="Scraping Alchemist: Celery, Selenium, PhantomJS and TOR - Santosh Pingale"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://yoursite.com/atom.xml" title="Codailama"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/pages/resume" target="_self" class="nav-list-link">RESUME</a></li><li class="nav-list-item"><a href="https://github.com/santosh-d3vpl3x" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Scraping Alchemist: Celery, Selenium, PhantomJS and TOR</h1><div class="post-info">Sep 19, 2015</div><div class="post-content"><p>Now a days people do scraping for fun and profit, all alike. Scraping is a mean of collecting data from various websites. This data then is often used for various analysis and sometimes the content is republished. There are tools like Selenium WebDriver, CasperJS which allow automated emulation of real user while interacting with browsers, with not much effort.</p>
+<p>This post provides architectural overview and avoids code snippets. The Scraper explained in this post, went through multiple iterations. The goals changes forced the product to prove its mettle, adapt and transform. The product evolved as demand increased.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#problems-and-problems-and-problems-and">Problems and Problems and Problems and &#x2026;.</a><ul>
+<li><a href="#the-stone-age">The Stone Age</a></li>
+<li><a href="#somewhere-in-the-bronze-age">Somewhere in the Bronze age</a></li>
+<li><a href="#the-iron-age">The Iron Age</a></li>
+<li><a href="#the-scraper-age">The Scraper Age</a></li>
+</ul>
+</li>
+<li><a href="#scraper-we-need-in-a-nutshell">Scraper We Need (in a nutshell)</a></li>
+<li><a href="#the-flow">The Flow</a><ul>
+<li><a href="#celery">Celery</a></li>
+<li><a href="#periodic-task-queuing">Periodic Task Queuing</a></li>
+<li><a href="#near-real-time-queuing">Near Real Time Queuing</a></li>
+<li><a href="#rest-api">REST API</a></li>
+<li><a href="#scraper">Scraper</a></li>
+<li><a href="#phantomjs">PhantomJS</a></li>
+<li><a href="#tor">TOR</a></li>
+<li><a href="#writers">Writers</a></li>
+<li><a href="#configurations-activator">Configurations Activator</a></li>
+<li><a href="#flume">Flume</a></li>
+</ul>
+</li>
+<li><a href="#current-status-and-future">Current Status and Future</a></li>
+</ul>
+<!-- tocstop -->
+<p></div></p>
+<h2 id="problems-and-problems-and-problems-and"><a href="#Problems-and-Problems-and-Problems-and-&#x2026;" class="headerlink" title="Problems and Problems and Problems and &#x2026;."></a>Problems and Problems and Problems and &#x2026;. <a href="#problems-and-problems-and-problems-and" class="header-anchor">#</a></h2><p>The scraper faced quite a few problems related to development as well as deployments while it was in its initial days.</p>
+<h3 id="the-stone-age"><a href="#The-Stone-Age" class="headerlink" title="The Stone Age"></a>The Stone Age <a href="#the-stone-age" class="header-anchor">#</a></h3><p>Initially, it was a browser plugin intended for public release. Data would be sent to pixel tracker while users are navigating on the target website. this data was kept in a file and then loaded into final datastore i.e. HDFS. No Proxy was required.<br><strong>Problem:</strong> As you can see, you don&#x2019;t know what data you will get and it is all manual.</p>
+<h3 id="somewhere-in-the-bronze-age"><a href="#Somewhere-in-the-Bronze-age" class="headerlink" title="Somewhere in the Bronze age"></a>Somewhere in the Bronze age <a href="#somewhere-in-the-bronze-age" class="header-anchor">#</a></h3><p>In order to target specific pages, a java + selenium + firefox based monolithic jar was released. It ran on multiple servers with each server targeting different set of pages through configuration. Data pipeline remained the same. Tor was used as proxy and it is still in production.<br><strong>Problem:</strong> Not scalable, Configuration changes were tedious and irritating. Scraper was too slow as firefox is slower to start.</p>
+<h3 id="the-iron-age"><a href="#The-Iron-Age" class="headerlink" title="The Iron Age"></a>The Iron Age <a href="#the-iron-age" class="header-anchor">#</a></h3><p>In order to speed up the process and have a centralized location for configurations, celery with CasperJS+PhantomJS was used. CasperJS wrote the output to disk which was tailed by SyslogNG and then SyslogNG passed the output to Flume.<br><strong>Problem:</strong> Gaining programming control of CasperJS from python code base proved inefficient as inter-process communication was required. Writing Navigation steps in python became increasingly difficult.</p>
+<h3 id="the-scraper-age"><a href="#The-Scraper-Age" class="headerlink" title="The Scraper Age"></a>The Scraper Age <a href="#the-scraper-age" class="header-anchor">#</a></h3><p>Now, we have combination of selenium, celery, PhantomJS and tor to take care of scraping. Selenium offered more programmatic control, better exception handling and results manipulations. Navigation steps were easier to modify. We could also support multiple browser which help tremendously in development. We can now support plethora of feature requests and bug squashing is fun. So much wow, so much fun!<br><strong>Problems:</strong> Celery/Scraper seems to be slowing down after a but. I haven&#x2019;t debugged it. But as time demands, I have deployed a magic script which restarts workers every 4 hours. A quick advice from someone well versed with celery can help.</p>
+<h2 id="scraper-we-need-in-a-nutshell"><a href="#Scraper-We-Need-in-a-nutshell" class="headerlink" title="Scraper We Need (in a nutshell)"></a>Scraper We Need (in a nutshell) <a href="#scraper-we-need-in-a-nutshell" class="header-anchor">#</a></h2><p>This is what we need at the moment.</p>
+<ol>
+<li>Scrape periodically for predefined set of webpages or query parameters.</li>
+<li>Perform requests in near real time [NRT] i.e. in request-response cycle itself to get the insight from scraped data before serving the final response.</li>
+<li>It should be easily configurable.</li>
+<li>Also, there is a need for multiple IPs in order to make detection more difficult.</li>
+<li>Along with it, it should be lightweight and should be horizontally scalable to make it easily cater increase in webpages.</li>
+<li>Ability to support multiple browsers, so that it can be ran anywhere. it would be a great add-on for development, QA and deployment.</li>
+<li>The scraped data needs to be persisted in multiple data stores.</li>
+</ol>
+<p>To fulfill the requirements, we came up with following ingredients for sauce:</p>
+<ol>
+<li><strong>Django Admin:</strong> To configure webpages to be scraped. Allows to configure multiple pages from a single screen. Support for adding multiple websites.</li>
+<li><strong>Celery:</strong> All the tasks [including execution and life cycle] are managed by celery beautifully. Multiple queues for managing multiple flows. Celery workers span across multiple nodes.</li>
+<li><strong>Selenium:</strong> Selenium is commander-in-chief which performs navigation steps and actual scraping. Thanks to wide variety of browser support, development and deployment along with QA is swift.</li>
+<li><strong>Python:</strong> This dynamic language allowed not only faster roll-outs of product but also easy configurations for switching execution environments.</li>
+<li><strong>SyslogNG and Flume:</strong> SylogNG and Flume provides a way to build extensible data pipelines.</li>
+<li><strong>Flask:</strong> Flask with Gunicorn and Celery allows to schedule the tasks in real time and the data would be scraped whenever celery worker becomes available. This can be easily extended to actually scrape the data in real time.</li>
+<li><strong>OpenTSDB and Zabbix:</strong> For monitoring and alerting, we will utilize Centralized Monitoring system i.e. monster.</li>
+<li><strong>Tor:</strong> We all want to be anonymous while scraping, don&#x2019;t we?</li>
+</ol>
+<h2 id="the-flow"><a href="#The-Flow" class="headerlink" title="The Flow"></a>The Flow <a href="#the-flow" class="header-anchor">#</a></h2><p><a href="http://codefudge.com/wp-content/uploads/2015/09/PriceCrawler.png" target="_blank" rel="external"><img src="http://codefudge.com/wp-content/uploads/2015/09/PriceCrawler-1024x535.png" alt="Scraper Pipeline"></a> Scraper Pipeline[/caption]</p>
+<h3 id="celery"><a href="#Celery" class="headerlink" title="Celery"></a>Celery <a href="#celery" class="header-anchor">#</a></h3><ol>
+<li>Celery is back bone for the scraper.</li>
+<li><p>It manages all the life cycle for tasks and workers.</p>
+<ol>
+<li>Initialization</li>
+<li>Queuing</li>
+<li>Scheduling</li>
+<li>Task execution</li>
+<li>Retries</li>
+<li>Queue management</li>
+</ol>
+</li>
+<li><p>It is used with eventlet.</p>
+</li>
+</ol>
+<h3 id="periodic-task-queuing"><a href="#Periodic-Task-Queuing" class="headerlink" title="Periodic Task Queuing"></a>Periodic Task Queuing <a href="#periodic-task-queuing" class="header-anchor">#</a></h3><ol>
+<li>All the target pages can be configured using admin panel. Admin panel offers form fields which is capable of creating a complete request for the target page. The field can be page number, dates, range of pages, range of dates etc. These configurations are stored in DB.</li>
+<li>Scheduler reads data from DB and creates celery tasks. These tasks are queued in task queue viz. RabbitMQ.</li>
+</ol>
+<h3 id="near-real-time-queuing"><a href="#Near-Real-Time-Queuing" class="headerlink" title="Near Real Time Queuing"></a>Near Real Time Queuing <a href="#near-real-time-queuing" class="header-anchor">#</a></h3><ol>
+<li>All the requests for real time scraping are catered from REST API. This REST API takes all the necessary parameters for scraping and schedules it in a queue.</li>
+<li>A storm topology reads data from a Kafka topic and calls REST API whenever filtering criteria for request is matched.</li>
+</ol>
+<p>Queues for periodic tasks and NRT tasks are separate and different set of workers work on the tasks.</p>
+<h3 id="rest-api"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API <a href="#rest-api" class="header-anchor">#</a></h3><ol>
+<li>REST API allows to queue any adhoc request.</li>
+<li>It returns a task id, whose progress can be later tracked by another end point using.</li>
+<li>This task id is UUID generated by celery and all the statuses are that of celery itself.</li>
+<li>Once the tasks are processed, Results are stored in Couchbase which acts as a result back-end for Celery.</li>
+</ol>
+<h3 id="scraper"><a href="#Scraper" class="headerlink" title="Scraper"></a>Scraper <a href="#scraper" class="header-anchor">#</a></h3><ol>
+<li>The Scraper constitutes Selenium and Browser. Selenium has APIs for interacting with browser.</li>
+<li>We specify all the necessary navigation steps, form fillings in selenium code to make sure we get the data needed.</li>
+<li>After, the page is loaded, we load a JS into page which fetches the data needed for further analysis.</li>
+</ol>
+<h3 id="phantomjs"><a href="#PhantomJS" class="headerlink" title="PhantomJS"></a>PhantomJS <a href="#phantomjs" class="header-anchor">#</a></h3><ol>
+<li>PhantomJS is deployed in production. Selenium has Ghost Driver to interact with PhantomJS.</li>
+<li>It is headless and hence can be readily deployed in Linux AMIs.</li>
+<li>It consumes way too less resources and faster. There were few crashes. But tradeoff is hard to ignore and in favor of PhantomJS.</li>
+<li>A new browser instance is started every time a new scraping task comes at worker.</li>
+</ol>
+<h3 id="tor"><a href="#TOR" class="headerlink" title="TOR"></a>TOR <a href="#tor" class="header-anchor">#</a></h3><ol>
+<li>All the requests made to websites pass through proxies.</li>
+<li><p>TOR is used as it:</p>
+<ol>
+<li>is free.</li>
+<li>offloads most of the head ache of changing IPs from scraper to itself.</li>
+<li>has region specific configurations.</li>
+<li>has IPs to offer.</li>
+</ol>
+</li>
+<li><p>Multiple instances with different ports are spawned per node to get region specific proxies.</p>
+</li>
+<li>Sometimes IPs allocated cause pages to timeouts. Hence that CPU time and cycle is wasted.</li>
+</ol>
+<h3 id="writers"><a href="#Writers" class="headerlink" title="Writers"></a>Writers <a href="#writers" class="header-anchor">#</a></h3><ol>
+<li><p>Each worker has ability to write data to multiple destinations. As of now, it can write to:</p>
+<ol>
+<li>Syslog UDP</li>
+<li>File</li>
+<li>Couchbase</li>
+</ol>
+</li>
+<li><p>Data can be manipulated before writing to the destination.</p>
+</li>
+</ol>
+<h3 id="configurations-activator"><a href="#Configurations-Activator" class="headerlink" title="Configurations Activator"></a>Configurations Activator <a href="#configurations-activator" class="header-anchor">#</a></h3><ol>
+<li>All the components mentioned can be switched on/off or changed by using flags.</li>
+<li>Multiple set of configurations can be maintained for multiple DCs, staging env, dev env or local machines.</li>
+<li>It is easy to replace underlying driver/browser with Selenium and scraper offers easy configuration for such selection.</li>
+</ol>
+<h3 id="flume"><a href="#Flume" class="headerlink" title="Flume"></a>Flume <a href="#flume" class="header-anchor">#</a></h3><ol>
+<li>Flume acts as syslog UDP server and then writes data to HDFS.</li>
+<li>There is a Partitioned Hive table over HDFS which enables easy analysis.</li>
+<li>Flume uses persistent file channel.</li>
+</ol>
+<h2 id="current-status-and-future"><a href="#Current-Status-and-Future" class="headerlink" title="Current Status and Future"></a>Current Status and Future <a href="#current-status-and-future" class="header-anchor">#</a></h2><p>This scraper is deployed on AWS with c4.medium machines. Each machine runs 10 periodic task scrapers along with 1 NRT scraper. There is a dedicated t2.medium machine for NRT task, as NRT request usually come in bursts, we can take the advantage of burstable CPU.</p>
+<p>New worker nodes can be deployed easily with worker AMIs. For now, scraper age looks good and scraper is able to scrape 10x pages in the same resources as that of bronze age, which can be further improved by reusing browser instances and privoxy to change TOR IPs.</p>
+<p>At the moment we are spending time on building storm topology which schedule a task in NRT queue. Admin panel is now more flexible with room for more configurations. Next nice to have thing for scraper is Auto-scalability. But before that we need to start pushing stats into OpenTSDB and maintain task statuses in a DB.</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/" class="next">下一篇</a></div><div class="copyright"><p>© 2013 - 2016 <a href="http://yoursite.com">Santosh Pingale</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>

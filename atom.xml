@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2016-09-12T17:46:38.000Z</updated>
+  <updated>2016-09-14T08:59:05.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,29 +16,838 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://yoursite.com/2016/09/12/hello-world/"/>
-    <id>http://yoursite.com/2016/09/12/hello-world/</id>
-    <published>2016-09-12T17:46:38.000Z</published>
-    <updated>2016-09-12T17:46:38.000Z</updated>
+    <title>Scraping Alchemist: Celery, Selenium, PhantomJS and TOR</title>
+    <link href="http://yoursite.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/"/>
+    <id>http://yoursite.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</id>
+    <published>2015-09-19T08:25:51.000Z</published>
+    <updated>2016-09-14T08:59:05.000Z</updated>
     
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> i = <span class="number">10</span>;</div><div class="line"><span class="keyword">for</span>(<span class="keyword">var</span> j=<span class="number">0</span>; j&lt;<span class="number">10</span>; j++)&#123;</div><div class="line">	<span class="built_in">console</span>.log</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+    <content type="html"><![CDATA[<p>Now a days people do scraping for fun and profit, all alike. Scraping is a mean of collecting data from various websites. This data then is often used for various analysis and sometimes the content is republished. There are tools like Selenium WebDriver, CasperJS which allow automated emulation of real user while interacting with browsers, with not much effort.</p>
+<p>This post provides architectural overview and avoids code snippets. The Scraper explained in this post, went through multiple iterations. The goals changes forced the product to prove its mettle, adapt and transform. The product evolved as demand increased.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#problems-and-problems-and-problems-and">Problems and Problems and Problems and &#x2026;.</a><ul>
+<li><a href="#the-stone-age">The Stone Age</a></li>
+<li><a href="#somewhere-in-the-bronze-age">Somewhere in the Bronze age</a></li>
+<li><a href="#the-iron-age">The Iron Age</a></li>
+<li><a href="#the-scraper-age">The Scraper Age</a></li>
+</ul>
+</li>
+<li><a href="#scraper-we-need-in-a-nutshell">Scraper We Need (in a nutshell)</a></li>
+<li><a href="#the-flow">The Flow</a><ul>
+<li><a href="#celery">Celery</a></li>
+<li><a href="#periodic-task-queuing">Periodic Task Queuing</a></li>
+<li><a href="#near-real-time-queuing">Near Real Time Queuing</a></li>
+<li><a href="#rest-api">REST API</a></li>
+<li><a href="#scraper">Scraper</a></li>
+<li><a href="#phantomjs">PhantomJS</a></li>
+<li><a href="#tor">TOR</a></li>
+<li><a href="#writers">Writers</a></li>
+<li><a href="#configurations-activator">Configurations Activator</a></li>
+<li><a href="#flume">Flume</a></li>
+</ul>
+</li>
+<li><a href="#current-status-and-future">Current Status and Future</a></li>
+</ul>
+<!-- tocstop -->
+<p></div></p>
+<h2 id="problems-and-problems-and-problems-and"><a href="#Problems-and-Problems-and-Problems-and-&#x2026;" class="headerlink" title="Problems and Problems and Problems and &#x2026;."></a>Problems and Problems and Problems and &#x2026;. <a href="#problems-and-problems-and-problems-and" class="header-anchor">#</a></h2><p>The scraper faced quite a few problems related to development as well as deployments while it was in its initial days.</p>
+<h3 id="the-stone-age"><a href="#The-Stone-Age" class="headerlink" title="The Stone Age"></a>The Stone Age <a href="#the-stone-age" class="header-anchor">#</a></h3><p>Initially, it was a browser plugin intended for public release. Data would be sent to pixel tracker while users are navigating on the target website. this data was kept in a file and then loaded into final datastore i.e. HDFS. No Proxy was required.<br><strong>Problem:</strong> As you can see, you don&#x2019;t know what data you will get and it is all manual.</p>
+<h3 id="somewhere-in-the-bronze-age"><a href="#Somewhere-in-the-Bronze-age" class="headerlink" title="Somewhere in the Bronze age"></a>Somewhere in the Bronze age <a href="#somewhere-in-the-bronze-age" class="header-anchor">#</a></h3><p>In order to target specific pages, a java + selenium + firefox based monolithic jar was released. It ran on multiple servers with each server targeting different set of pages through configuration. Data pipeline remained the same. Tor was used as proxy and it is still in production.<br><strong>Problem:</strong> Not scalable, Configuration changes were tedious and irritating. Scraper was too slow as firefox is slower to start.</p>
+<h3 id="the-iron-age"><a href="#The-Iron-Age" class="headerlink" title="The Iron Age"></a>The Iron Age <a href="#the-iron-age" class="header-anchor">#</a></h3><p>In order to speed up the process and have a centralized location for configurations, celery with CasperJS+PhantomJS was used. CasperJS wrote the output to disk which was tailed by SyslogNG and then SyslogNG passed the output to Flume.<br><strong>Problem:</strong> Gaining programming control of CasperJS from python code base proved inefficient as inter-process communication was required. Writing Navigation steps in python became increasingly difficult.</p>
+<h3 id="the-scraper-age"><a href="#The-Scraper-Age" class="headerlink" title="The Scraper Age"></a>The Scraper Age <a href="#the-scraper-age" class="header-anchor">#</a></h3><p>Now, we have combination of selenium, celery, PhantomJS and tor to take care of scraping. Selenium offered more programmatic control, better exception handling and results manipulations. Navigation steps were easier to modify. We could also support multiple browser which help tremendously in development. We can now support plethora of feature requests and bug squashing is fun. So much wow, so much fun!<br><strong>Problems:</strong> Celery/Scraper seems to be slowing down after a but. I haven&#x2019;t debugged it. But as time demands, I have deployed a magic script which restarts workers every 4 hours. A quick advice from someone well versed with celery can help.</p>
+<h2 id="scraper-we-need-in-a-nutshell"><a href="#Scraper-We-Need-in-a-nutshell" class="headerlink" title="Scraper We Need (in a nutshell)"></a>Scraper We Need (in a nutshell) <a href="#scraper-we-need-in-a-nutshell" class="header-anchor">#</a></h2><p>This is what we need at the moment.</p>
+<ol>
+<li>Scrape periodically for predefined set of webpages or query parameters.</li>
+<li>Perform requests in near real time [NRT] i.e. in request-response cycle itself to get the insight from scraped data before serving the final response.</li>
+<li>It should be easily configurable.</li>
+<li>Also, there is a need for multiple IPs in order to make detection more difficult.</li>
+<li>Along with it, it should be lightweight and should be horizontally scalable to make it easily cater increase in webpages.</li>
+<li>Ability to support multiple browsers, so that it can be ran anywhere. it would be a great add-on for development, QA and deployment.</li>
+<li>The scraped data needs to be persisted in multiple data stores.</li>
+</ol>
+<p>To fulfill the requirements, we came up with following ingredients for sauce:</p>
+<ol>
+<li><strong>Django Admin:</strong> To configure webpages to be scraped. Allows to configure multiple pages from a single screen. Support for adding multiple websites.</li>
+<li><strong>Celery:</strong> All the tasks [including execution and life cycle] are managed by celery beautifully. Multiple queues for managing multiple flows. Celery workers span across multiple nodes.</li>
+<li><strong>Selenium:</strong> Selenium is commander-in-chief which performs navigation steps and actual scraping. Thanks to wide variety of browser support, development and deployment along with QA is swift.</li>
+<li><strong>Python:</strong> This dynamic language allowed not only faster roll-outs of product but also easy configurations for switching execution environments.</li>
+<li><strong>SyslogNG and Flume:</strong> SylogNG and Flume provides a way to build extensible data pipelines.</li>
+<li><strong>Flask:</strong> Flask with Gunicorn and Celery allows to schedule the tasks in real time and the data would be scraped whenever celery worker becomes available. This can be easily extended to actually scrape the data in real time.</li>
+<li><strong>OpenTSDB and Zabbix:</strong> For monitoring and alerting, we will utilize Centralized Monitoring system i.e. monster.</li>
+<li><strong>Tor:</strong> We all want to be anonymous while scraping, don&#x2019;t we?</li>
+</ol>
+<h2 id="the-flow"><a href="#The-Flow" class="headerlink" title="The Flow"></a>The Flow <a href="#the-flow" class="header-anchor">#</a></h2><p><a href="http://codefudge.com/wp-content/uploads/2015/09/PriceCrawler.png" target="_blank" rel="external"><img src="http://codefudge.com/wp-content/uploads/2015/09/PriceCrawler-1024x535.png" alt="Scraper Pipeline"></a> Scraper Pipeline[/caption]</p>
+<h3 id="celery"><a href="#Celery" class="headerlink" title="Celery"></a>Celery <a href="#celery" class="header-anchor">#</a></h3><ol>
+<li>Celery is back bone for the scraper.</li>
+<li><p>It manages all the life cycle for tasks and workers.</p>
+<ol>
+<li>Initialization</li>
+<li>Queuing</li>
+<li>Scheduling</li>
+<li>Task execution</li>
+<li>Retries</li>
+<li>Queue management</li>
+</ol>
+</li>
+<li><p>It is used with eventlet.</p>
+</li>
+</ol>
+<h3 id="periodic-task-queuing"><a href="#Periodic-Task-Queuing" class="headerlink" title="Periodic Task Queuing"></a>Periodic Task Queuing <a href="#periodic-task-queuing" class="header-anchor">#</a></h3><ol>
+<li>All the target pages can be configured using admin panel. Admin panel offers form fields which is capable of creating a complete request for the target page. The field can be page number, dates, range of pages, range of dates etc. These configurations are stored in DB.</li>
+<li>Scheduler reads data from DB and creates celery tasks. These tasks are queued in task queue viz. RabbitMQ.</li>
+</ol>
+<h3 id="near-real-time-queuing"><a href="#Near-Real-Time-Queuing" class="headerlink" title="Near Real Time Queuing"></a>Near Real Time Queuing <a href="#near-real-time-queuing" class="header-anchor">#</a></h3><ol>
+<li>All the requests for real time scraping are catered from REST API. This REST API takes all the necessary parameters for scraping and schedules it in a queue.</li>
+<li>A storm topology reads data from a Kafka topic and calls REST API whenever filtering criteria for request is matched.</li>
+</ol>
+<p>Queues for periodic tasks and NRT tasks are separate and different set of workers work on the tasks.</p>
+<h3 id="rest-api"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API <a href="#rest-api" class="header-anchor">#</a></h3><ol>
+<li>REST API allows to queue any adhoc request.</li>
+<li>It returns a task id, whose progress can be later tracked by another end point using.</li>
+<li>This task id is UUID generated by celery and all the statuses are that of celery itself.</li>
+<li>Once the tasks are processed, Results are stored in Couchbase which acts as a result back-end for Celery.</li>
+</ol>
+<h3 id="scraper"><a href="#Scraper" class="headerlink" title="Scraper"></a>Scraper <a href="#scraper" class="header-anchor">#</a></h3><ol>
+<li>The Scraper constitutes Selenium and Browser. Selenium has APIs for interacting with browser.</li>
+<li>We specify all the necessary navigation steps, form fillings in selenium code to make sure we get the data needed.</li>
+<li>After, the page is loaded, we load a JS into page which fetches the data needed for further analysis.</li>
+</ol>
+<h3 id="phantomjs"><a href="#PhantomJS" class="headerlink" title="PhantomJS"></a>PhantomJS <a href="#phantomjs" class="header-anchor">#</a></h3><ol>
+<li>PhantomJS is deployed in production. Selenium has Ghost Driver to interact with PhantomJS.</li>
+<li>It is headless and hence can be readily deployed in Linux AMIs.</li>
+<li>It consumes way too less resources and faster. There were few crashes. But tradeoff is hard to ignore and in favor of PhantomJS.</li>
+<li>A new browser instance is started every time a new scraping task comes at worker.</li>
+</ol>
+<h3 id="tor"><a href="#TOR" class="headerlink" title="TOR"></a>TOR <a href="#tor" class="header-anchor">#</a></h3><ol>
+<li>All the requests made to websites pass through proxies.</li>
+<li><p>TOR is used as it:</p>
+<ol>
+<li>is free.</li>
+<li>offloads most of the head ache of changing IPs from scraper to itself.</li>
+<li>has region specific configurations.</li>
+<li>has IPs to offer.</li>
+</ol>
+</li>
+<li><p>Multiple instances with different ports are spawned per node to get region specific proxies.</p>
+</li>
+<li>Sometimes IPs allocated cause pages to timeouts. Hence that CPU time and cycle is wasted.</li>
+</ol>
+<h3 id="writers"><a href="#Writers" class="headerlink" title="Writers"></a>Writers <a href="#writers" class="header-anchor">#</a></h3><ol>
+<li><p>Each worker has ability to write data to multiple destinations. As of now, it can write to:</p>
+<ol>
+<li>Syslog UDP</li>
+<li>File</li>
+<li>Couchbase</li>
+</ol>
+</li>
+<li><p>Data can be manipulated before writing to the destination.</p>
+</li>
+</ol>
+<h3 id="configurations-activator"><a href="#Configurations-Activator" class="headerlink" title="Configurations Activator"></a>Configurations Activator <a href="#configurations-activator" class="header-anchor">#</a></h3><ol>
+<li>All the components mentioned can be switched on/off or changed by using flags.</li>
+<li>Multiple set of configurations can be maintained for multiple DCs, staging env, dev env or local machines.</li>
+<li>It is easy to replace underlying driver/browser with Selenium and scraper offers easy configuration for such selection.</li>
+</ol>
+<h3 id="flume"><a href="#Flume" class="headerlink" title="Flume"></a>Flume <a href="#flume" class="header-anchor">#</a></h3><ol>
+<li>Flume acts as syslog UDP server and then writes data to HDFS.</li>
+<li>There is a Partitioned Hive table over HDFS which enables easy analysis.</li>
+<li>Flume uses persistent file channel.</li>
+</ol>
+<h2 id="current-status-and-future"><a href="#Current-Status-and-Future" class="headerlink" title="Current Status and Future"></a>Current Status and Future <a href="#current-status-and-future" class="header-anchor">#</a></h2><p>This scraper is deployed on AWS with c4.medium machines. Each machine runs 10 periodic task scrapers along with 1 NRT scraper. There is a dedicated t2.medium machine for NRT task, as NRT request usually come in bursts, we can take the advantage of burstable CPU.</p>
+<p>New worker nodes can be deployed easily with worker AMIs. For now, scraper age looks good and scraper is able to scrape 10x pages in the same resources as that of bronze age, which can be further improved by reusing browser instances and privoxy to change TOR IPs.</p>
+<p>At the moment we are spending time on building storm topology which schedule a task in NRT queue. Admin panel is now more flexible with room for more configurations. Next nice to have thing for scraper is Auto-scalability. But before that we need to start pushing stats into OpenTSDB and maintain task statuses in a DB.</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      &lt;p&gt;Now a days people do scraping for fun and profit, all alike. Scraping is a mean of collecting data from various websites. This data then is often used for various analysis and sometimes the content is republished. There are tools like Selenium WebDriver, CasperJS which allow automated emulation of real user while interacting with browsers, with not much effort.&lt;/p&gt;
+&lt;p&gt;This post provides architectural overview and avoids code snippets. The Scraper explained in this post, went through multiple iterations. The goals changes forced the product to prove its mettle, adapt and transform. The product evolved as demand increased.&lt;br&gt;
     
     </summary>
+    
+      <category term="Architecture" scheme="http://yoursite.com/categories/Architecture/"/>
+    
+      <category term="Celery" scheme="http://yoursite.com/categories/Architecture/Celery/"/>
+    
+      <category term="PhantomJS" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/"/>
+    
+      <category term="Python" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/"/>
+    
+      <category term="Scraping" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/"/>
+    
+      <category term="Selenium" scheme="http://yoursite.com/categories/Architecture/Celery/PhantomJS/Python/Scraping/Selenium/"/>
+    
+    
+      <category term="celery" scheme="http://yoursite.com/tags/celery/"/>
+    
+      <category term="flume" scheme="http://yoursite.com/tags/flume/"/>
+    
+      <category term="phantomjs" scheme="http://yoursite.com/tags/phantomjs/"/>
+    
+      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="scraper" scheme="http://yoursite.com/tags/scraper/"/>
+    
+      <category term="selenium" scheme="http://yoursite.com/tags/selenium/"/>
+    
+      <category term="tor" scheme="http://yoursite.com/tags/tor/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Understanding Java Wrappers and Collections Memory Usage</title>
+    <link href="http://yoursite.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/"/>
+    <id>http://yoursite.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</id>
+    <published>2015-07-14T17:35:37.000Z</published>
+    <updated>2016-09-14T09:19:13.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Recently, I was trying to get my head around how objects occupy memory space in heap and this video by Paul Cheeseman, IBM helped a lot. Hope you enjoy it too!</p>
+<p><strong>Video:</strong></p>
+<embed src="https://www.youtube.com/embed/FLcXf9pO27w">
+<p><strong>Slides:</strong></p>
+<embed src="https://www.slideshare.net/slideshow/embed_code/key/4PmZr7G8gayvQL">
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Recently, I was trying to get my head around how objects occupy memory space in heap and this video by Paul Cheeseman, IBM helped a lot. 
+    
+    </summary>
+    
+      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+    
+    
+      <category term="heaps" scheme="http://yoursite.com/tags/heaps/"/>
+    
+      <category term="Java object" scheme="http://yoursite.com/tags/Java-object/"/>
+    
+      <category term="primitive vs wrappers" scheme="http://yoursite.com/tags/primitive-vs-wrappers/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Monster : A Centralized Monitoring System With OpenTSDB</title>
+    <link href="http://yoursite.com/2015/04/29/monster-centralized-monitoring-system/"/>
+    <id>http://yoursite.com/2015/04/29/monster-centralized-monitoring-system/</id>
+    <published>2015-04-29T17:18:00.000Z</published>
+    <updated>2016-09-14T09:24:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Systems are rapidly becoming distributed in nature. Systems now a days are also implementing components which are designed to perform a specific task. With more and more components, they are spreading rapidly on different machines, different operating systems and they are altogether different in nature.  </p>
+<p>In general, if something goes down or if something is not performing well, then one need to investigate the root cause of issue so as to tune system or to fix it. In complex systems, doing such analysis might become a complex task ending up consuming lots of resources. As there are multiple components involved, there would be multiple teams involved. This further slows down the investigation process. In worst case, business might get impacted because of poor performing system for such a long time. As a solution one can implement Central Monitoring System which collects critical metrics from each of the  collects. With this system in place, if something screws up, one can correlate all the events at a single location reducing the unnecessary overhead analyzing each component separately.<br><a id="more"></a></p>
+<p>This article is more of a overview about how monster, our in house central monitoring system, looks like. </p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#system-overview">System Overview</a><ul>
+<li><a href="#server">Server</a></li>
+<li><a href="#datastore">Datastore</a></li>
+<li><a href="#web-services">Web Services</a></li>
+</ul>
+</li>
+<li><a href="#datamonster">DataMonster</a></li>
+<li><a href="#gathering-metrics">Gathering Metrics</a><ul>
+<li><a href="#system-metrics">System Metrics</a></li>
+<li><a href="#applications-logs">Applications Logs</a></li>
+<li><a href="#access-logs">Access Logs</a></li>
+<li><a href="#database-performance">Database Performance</a></li>
+<li><a href="#caching-layer">Caching Layer</a></li>
+</ul>
+</li>
+<li><a href="#observing-trends">Observing Trends</a></li>
+<li><a href="#generating-alerts">Generating Alerts</a></li>
+</ul>
+<!-- tocstop -->
+</div>
+
+<h2 id="system-overview"><a href="#System-Overview" class="headerlink" title="System Overview"></a>System Overview <a href="#system-overview" class="header-anchor">#</a></h2><p><img src="http://130.211.135.58/wp-content/uploads/2015/04/CentralLogging.png" alt="Central Logging Architecture"></p>
+<p>To get our monster working, we need to setup a pipeline of system components.  Each system component is on specific role and has to perform some task in order to keep data points flowing. Lets peek at this pipeline.</p>
+<h3 id="server"><a href="#Server" class="headerlink" title="Server"></a>Server <a href="#server" class="header-anchor">#</a></h3><p>Server is any machine that you want under monitoring. It produces three[atleast] types of metrics. </p>
+<ul>
+<li>System Metrics like CPU, Memory, etc.</li>
+<li>Access logs for web servers</li>
+<li>Application logs for deployed web apps</li>
+</ul>
+<h3 id="datastore"><a href="#Datastore" class="headerlink" title="Datastore"></a>Datastore <a href="#datastore" class="header-anchor">#</a></h3><p>Datastore covers various components which can store data. The most important expectation from them is low latency while querying. It covers MySQL, MSSQL, Couchbase, Memcached like datastores.</p>
+<ul>
+<li>Performance Metrics like IO&#x2019;s, locks, etc.</li>
+<li>System Metrics for DBServer</li>
+<li>Server logs such as slow query logs</li>
+<li>Certain stats which can be obtained by actually querying DB.</li>
+<li>Business Metrics obtained by querying DB.</li>
+</ul>
+<h3 id="web-services"><a href="#Web-Services" class="headerlink" title="Web Services"></a>Web Services <a href="#web-services" class="header-anchor">#</a></h3><p>Most of application consume data from other applications and third party through APIs. If there is some issue with these API, we can see sudden drop in funnel conversion rations and bookings. It is very important to monitor these service&#x2019;s performance. A healthcheck and response time would be first class citizen for such monitoring.</p>
+<h2 id="datamonster"><a href="#DataMonster" class="headerlink" title="DataMonster"></a>DataMonster <a href="#datamonster" class="header-anchor">#</a></h2><p>DataMonster is a task scheduler which we have developed in house. These tasks are configured from Django Admin UI and these tasks are executed by celery workers. Most of the tasks are queries fetching business reports and queries to ES for application &amp; access stats.</p>
+<h2 id="gathering-metrics"><a href="#Gathering-Metrics" class="headerlink" title="Gathering Metrics"></a>Gathering Metrics <a href="#gathering-metrics" class="header-anchor">#</a></h2><p>Once we have identified components to be monitored, we can select/write appropriate agent/processor for getting data points in appropriate format into OpenTSDB and Zabbix.</p>
+<h3 id="system-metrics"><a href="#System-Metrics" class="headerlink" title="System Metrics"></a>System Metrics <a href="#system-metrics" class="header-anchor">#</a></h3><p>System metrics include metrics from CPU, Memory, Disk, Network, etc. For Linux machines we already have <em>Graphite</em>+<em>Diamond</em> in place. We decided to extend <em>Diamond</em> for pushing these stats into OpenTSDB. We wrote a custom handler to get data in proper format and that was about it. But for windows machines, we had to explore for options. Leveraging Performance monitor is on top of our mind. We would also be evaluating <em>scollector</em> for the very same task. UPDATE: scollector has been modified to work over TCP and it is working perfectly.</p>
+<h3 id="applications-logs"><a href="#Applications-Logs" class="headerlink" title="Applications Logs"></a>Applications Logs <a href="#applications-logs" class="header-anchor">#</a></h3><p>Applications produce huge amount of logs. These logs carry valuable information about errors, ambiguous conditions as well as various response codes from third party services. In order to retrieve this information from logs, these logs are collected at a location with the help of syslog ng and then passed on to ES cluster. Useful information can be queried from ES and then converted in the metric for further consumption.</p>
+<h3 id="access-logs"><a href="#Access-Logs" class="headerlink" title="Access Logs"></a>Access Logs <a href="#access-logs" class="header-anchor">#</a></h3><p>Every web server can be configured to produce access logs. Access logs can be used to identify bottlenecks in applications, error pages, visits, page views, downloads, keywords, referring websites, etc. In order to process these logs one has to standardize the pattern for logging. This standardization is relatively easy. Logster tuned for OpenTSDB is being planned for production usage.</p>
+<h3 id="database-performance"><a href="#Database-Performance" class="headerlink" title="Database Performance"></a>Database Performance <a href="#database-performance" class="header-anchor">#</a></h3><p>Database performance is measured in terms of application performance. Critical queries executed and stored procedures invoked, number of connections, transactions are important from that perspective. This data can be fetched from tables or from logs printed by those db. First class members for such monitoring are:</p>
+<ul>
+<li>Slow queries response time</li>
+<li>Critical queries and procedures response time as well as count</li>
+<li>Transactions and connections count</li>
+<li>Exceptions count</li>
+</ul>
+<h3 id="caching-layer"><a href="#Caching-Layer" class="headerlink" title="Caching Layer"></a>Caching Layer <a href="#caching-layer" class="header-anchor">#</a></h3><p>Most of the web applications are backed by caching systems such couchbase and memcached. It is equally important to measure the performance and throughput of this system so that we can efficiently utilize the available resources. we are as of now utilizing cbstats and memcached stat command to receive stats in out system.</p>
+<h2 id="observing-trends"><a href="#Observing-Trends" class="headerlink" title="Observing Trends"></a>Observing Trends <a href="#observing-trends" class="header-anchor">#</a></h2><p>One can easily observe trends from OpenTSDB&#x2019;s own GUI or from Grafana. If you want to create dashboards, metrilyx can be used.</p>
+<h2 id="generating-alerts"><a href="#Generating-Alerts" class="headerlink" title="Generating Alerts"></a>Generating Alerts <a href="#generating-alerts" class="header-anchor">#</a></h2><p>In order to generate various alerts, we can use zabbix. Zabbix is an open source tool which has multiple components. Core component involves, zabbix server. This zabbix server has capability to create various rules on collected data and it then can send an alert to a mail group. Cool, isn&#x2019;t it?</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Systems are rapidly becoming distributed in nature. Systems now a days are also implementing components which are designed to perform a specific task. With more and more components, they are spreading rapidly on different machines, different operating systems and they are altogether different in nature.  &lt;/p&gt;
+&lt;p&gt;In general, if something goes down or if something is not performing well, then one need to investigate the root cause of issue so as to tune system or to fix it. In complex systems, doing such analysis might become a complex task ending up consuming lots of resources. As there are multiple components involved, there would be multiple teams involved. This further slows down the investigation process. In worst case, business might get impacted because of poor performing system for such a long time. As a solution one can implement Central Monitoring System which collects critical metrics from each of the  collects. With this system in place, if something screws up, one can correlate all the events at a single location reducing the unnecessary overhead analyzing each component separately.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Architecture" scheme="http://yoursite.com/categories/Architecture/"/>
+    
+      <category term="Monitoring" scheme="http://yoursite.com/categories/Architecture/Monitoring/"/>
+    
+    
+      <category term="Architecture" scheme="http://yoursite.com/tags/Architecture/"/>
+    
+      <category term="Monitoring" scheme="http://yoursite.com/tags/Monitoring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>#IssueFix: Missing artifact jdk.tools:jdk.tools:jar:1.6 in Eclipse</title>
+    <link href="http://yoursite.com/2015/03/07/issuefix-missing-artifact/"/>
+    <id>http://yoursite.com/2015/03/07/issuefix-missing-artifact/</id>
+    <published>2015-03-07T04:27:00.000Z</published>
+    <updated>2016-09-14T09:33:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Most of us face this issue when they are working with Hadoop related source codes. Maven starts reporting a missing dependency.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#issue">Issue</a></li>
+<li><a href="#rca">RCA</a></li>
+<li><a href="#solution">Solution</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<!-- tocstop -->
+<p></div></p>
+<h2 id="issue"><a href="#Issue" class="headerlink" title="Issue"></a>Issue <a href="#issue" class="header-anchor">#</a></h2><p><code>Missing artifact jdk.tools:jdk.tools:jar:1.6</code> in pom.xml and hence project would not build.</p>
+<h2 id="rca"><a href="#RCA" class="headerlink" title="RCA"></a>RCA <a href="#rca" class="header-anchor">#</a></h2><p>The main reason behind this issue is that, the project depends in <code>tools.jar</code> which contains additional tools and utilities in JDK. These dependencies are not available in JRE without JDK. There is an issue with Maven plugin in Eclipse. Instead of using JRE which is set to build an individual project, Maven plugin uses JRE used by Eclipse.<br>In this case, eclipse was started with JRE which is without JDK and hence Maven could not located <code>tools.jar</code></p>
+<h2 id="solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution <a href="#solution" class="header-anchor">#</a></h2><p>Solution would be to start eclipse with JRE that is inside JDK. To do so, open <code>eclipse.ini</code> [OR <code>sts.ini</code>] and add following lines,<br>Please adjust path to <code>javaw.exe</code> as per necessity.<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-vm</div><div class="line">C:/jdk1.7.0_21/bin/javaw.exe</div></pre></td></tr></table></figure></p>
+<p>This might not work on all systems. If you encounter <code>Java was started but returned exit code=1</code> error while starting the eclipse, modify the <code>-vm</code> argument to point to <code>jvm.dll</code> :<br>For Linux:<br>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-vm</div><div class="line">/opt/sun-jdk-1.6.0.02/bin/java</div></pre></td></tr></table></figure></p>
+<p>For MacOS:<br>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-vm</div><div class="line">/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home/bin/java</div></pre></td></tr></table></figure></p>
+<p>Paths can be different, please adjust accordingly.<br>If for some reason, you cannot edit <code>ini</code> file then you can modify the project <code>pom.xml</code> instead.<br>Add the following dependency to your pom file:[You should not add system specific dependencies in <code>pom.xml</code> though]<br>    <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>jdk.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jdk.tools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>system<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">systemPath</span>&gt;</span>C:/Program Files/Java/jdk1.6.0_45/lib/tools.jar<span class="tag">&lt;/<span class="name">systemPath</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>Refresh the project along with Maven dependencies and you should be good to go.<br>You can simply build your project from command line Maven commands. It should still work.</p>
+<h2 id="references"><a href="#References" class="headerlink" title="References"></a>References <a href="#references" class="header-anchor">#</a></h2><p><a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/jdkfiles.html" target="_blank" rel="external">JDK files</a><br><a href="http://wiki.eclipse.org/Eclipse.ini#-vm_value:_Windows_Example" target="_blank" rel="external">Eclipse VM values</a><br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=432992" target="_blank" rel="external">Eclipse Maven bug</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Most of us face this issue when they are working with Hadoop related source codes. Maven starts reporting a missing dependency.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+    
+      <category term="IssueFix" scheme="http://yoursite.com/categories/Big-Data/IssueFix/"/>
+    
+    
+      <category term="Eclipse" scheme="http://yoursite.com/tags/Eclipse/"/>
+    
+      <category term="IssueFix" scheme="http://yoursite.com/tags/IssueFix/"/>
+    
+      <category term="Maven" scheme="http://yoursite.com/tags/Maven/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hive Partitioning: Tips and Hows</title>
+    <link href="http://yoursite.com/2015/03/06/hive-partitioning-tips-and-hows/"/>
+    <id>http://yoursite.com/2015/03/06/hive-partitioning-tips-and-hows/</id>
+    <published>2015-03-06T12:36:00.000Z</published>
+    <updated>2016-09-14T09:56:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>After having used Hive for sometime now, I can really say, it has provided some serious productivity boost. Not only that, it is really easy to maintain and most of the things are transparent to the developer. Really huge amount of data can be efficiently crunched using Hive!</p>
+<a id="more"></a>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#hive-partitioning-an-overview">Hive Partitioning: An Overview</a></li>
+<li><a href="#defining-a-partitioned-table">Defining a Partitioned Table</a><ul>
+<li><a href="#while-creating-table">While Creating Table</a></li>
+</ul>
+</li>
+<li><a href="#adding-data-to-partitioned-table">Adding Data to Partitioned Table</a><ul>
+<li><a href="#using-staging-table">Using Staging Table</a></li>
+<li><a href="#load-data-inpath">Load Data Inpath</a></li>
+<li><a href="#copy-data-data-and-perform-alter-table">Copy Data Data and Perform Alter Table</a></li>
+</ul>
+</li>
+<li><a href="#partitioning-methodology">Partitioning Methodology</a><ul>
+<li><a href="#static-partitioning">Static Partitioning</a></li>
+<li><a href="#dynamic-partitioning">Dynamic Partitioning</a></li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#tips-and-precautions">Tips and Precautions</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<!-- tocstop -->
+<p></div></p>
+<h2 id="hive-partitioning-an-overview"><a href="#Hive-Partitioning-An-Overview" class="headerlink" title="Hive Partitioning: An Overview"></a>Hive Partitioning: An Overview <a href="#hive-partitioning-an-overview" class="header-anchor">#</a></h2><p>By design, Hive is a DWH built on top of HDFS and MR. It is built for very large datasets. Behind the scene, Hive also spawns MapReduce. With existing data volume and velocity at which new data is flowing in would cause system to reach a point where processing would end up hogging all the available resource.<br><img src="http://130.211.135.58/wp-content/uploads/2015/03/HivePartitioning-UnpartitionedTable.png" alt="Data Processing - Unpartitioned Table"><br>Lets imagine a scenario, if we were to dump all the access logs from servers to HDFS, we will simply build a hive table on top of it. The data will start flowing in it on daily basis. We start appending data to HDFS directory. Six months later, some issue occurs in production and only one week duration of access log data is required for its analysis. We will need to execute query on date column which will iterate over all the rows from all the files in the HDFS dir. A full table scan is performed for such a trivial task. Wouldn&#x2019;t it be nice to have feature which will allow us to readily fetch data for only those seven days? Hive partitioning provides exactly that!<br><img src="http://130.211.135.58/wp-content/uploads/2015/03/HivePartitioning-partitionedTable-1024x465.png" alt="Data Processing - Partitioned Table"><br>Generally a MapReduce program reads all the files provided as input and then as per code logic, it starts applying filters, aggregations, etc. For large data sets this method is very inefficient. In most of the cases, table users know the frequently used columns for querying.<br>For example: Most of the time, queries performed over log data have date in where clause. Sample query for access logs would be &#x201C;give me all the 404 which occurred yesterday&#x201D;.</p>
+<p>In such cases it makes sense to make all frequently queried column related data readily queryable! Hive partitioning helps in organizing such data in separate directories. As a result, all the data related to a particular column value is put under a directory. When a query is executed with partition column in criteria, instead of performing a full table scan, all the data belonging to that partition directory is fetched and processed which greatly reduces amount of data crunched.</p>
+<p>Lets see how to create a partitioned table and ways in which data can be pumped into it. Then how can we use partitions efficiently and what precautions we should take while dealing with partitions.</p>
+<h2 id="defining-a-partitioned-table"><a href="#Defining-a-Partitioned-Table" class="headerlink" title="Defining a Partitioned Table"></a>Defining a Partitioned Table <a href="#defining-a-partitioned-table" class="header-anchor">#</a></h2><p>Hive language manual is one of the very well written documentation on www. It clearly explains every little detail in a very intuitive manner. Lets use it and create a table which is partitioned. We will use the same case explained earlier. The <code>demographic</code> table would be partitioned by <code>BirthDate</code> column.</p>
+<h3 id="while-creating-table"><a href="#While-Creating-Table" class="headerlink" title="While Creating Table"></a>While Creating Table <a href="#while-creating-table" class="header-anchor">#</a></h3><p>Most of the time we know details about data which is going to flow in system. Hence, we can instruct Hive to create partitioned table.<br>Syntax:<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> PARTITIONED_TABLE </div><div class="line">(column_name column_type)</div><div class="line">PARTITIONED <span class="keyword">BY</span> </div><div class="line">(partition_column partition_type) </div><div class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> ... </div><div class="line">LOCATION ...</div></pre></td></tr></table></figure></p>
+<p>So <code>demographic</code> table DDL will look like:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> DEMOGRAPHIC(</div><div class="line">     GENDER <span class="keyword">string</span>,</div><div class="line">     <span class="keyword">NAME</span> <span class="keyword">string</span>,</div><div class="line">     CITY <span class="keyword">string</span>,</div><div class="line">     COUNTRY <span class="keyword">string</span>,</div><div class="line">     BIRTHDATETIME <span class="keyword">string</span>)</div><div class="line">    PARTITIONED <span class="keyword">BY</span> (</div><div class="line">     BirthDate <span class="keyword">string</span></div><div class="line">    )</div><div class="line">    <span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE</div><div class="line">    LOCATION <span class="string">&apos;/app/person/demographic&apos;</span></div></pre></td></tr></table></figure>
+<p>What is the difference between unpartitioned table and partitioned table in this case? <code>BirthDate</code> column would become a pseudo column. Actual files will not contain any data for <code>Birthdate</code>, rather it will be derived from directory name.<br>When our table is partitioned by <code>Birthdate</code> then we will have directory <code>/app/person/demographic/BirthDate=2015-01-01</code> and this directory will have following structure when selected from hive query.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Gender</th>
+<th style="text-align:right">Name</th>
+<th style="text-align:center">City</th>
+<th style="text-align:center">Country</th>
+<th style="text-align:center">BirthDateTime</th>
+<th style="text-align:center">BirthDate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Male</td>
+<td style="text-align:right">Jack</td>
+<td style="text-align:center">NY</td>
+<td style="text-align:center">US</td>
+<td style="text-align:center">2015-01-01 01:23:39</td>
+<td style="text-align:center">2015-01-01</td>
+</tr>
+<tr>
+<td style="text-align:center">Male</td>
+<td style="text-align:right">Kent</td>
+<td style="text-align:center">LON</td>
+<td style="text-align:center">UK</td>
+<td style="text-align:center">2015-01-01 04:43:40</td>
+<td style="text-align:center">2015-01-01</td>
+</tr>
+<tr>
+<td style="text-align:center">Female</td>
+<td style="text-align:right">Rossie</td>
+<td style="text-align:center">SYD</td>
+<td style="text-align:center">AUS</td>
+<td style="text-align:center">2015-01-01 12:31:30</td>
+<td style="text-align:center">2015-01-01</td>
+</tr>
+</tbody>
+</table>
+<p>You can execute query with partition column in where clause and you can see huge performance boost. If all partitions are uniformly sized and there are about 1000 partitions, it will take only 7/1000th of cumulative CPU time as compared to the case of non partitioned table.</p>
+<h2 id="adding-data-to-partitioned-table"><a href="#Adding-Data-to-Partitioned-Table" class="headerlink" title="Adding Data to Partitioned Table"></a>Adding Data to Partitioned Table <a href="#adding-data-to-partitioned-table" class="header-anchor">#</a></h2><h3 id="using-staging-table"><a href="#Using-Staging-Table" class="headerlink" title="Using Staging Table"></a>Using Staging Table <a href="#using-staging-table" class="header-anchor">#</a></h3><p>In this strategy, we create a staging table to temporarily host the data and then we move data to final partition.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> DEMOGRAPHIC_TEMP(</div><div class="line">    GENDER <span class="keyword">string</span>,</div><div class="line">     <span class="keyword">NAME</span> <span class="keyword">string</span>,</div><div class="line">     CITY <span class="keyword">string</span>,</div><div class="line">     COUNTRY <span class="keyword">string</span>,</div><div class="line">     BIRTHDATETIME <span class="keyword">string</span>)</div><div class="line">    <span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE</div><div class="line">    LOCATION <span class="string">&apos;/app/person/demographic&apos;</span></div></pre></td></tr></table></figure>
+<p>As you might have noticed, staging table does not have any partition column, well in some use cases it is possible to create a partition column for temp table as well. To add data to temp table, we just put the data into the table location. Then using <code>INSERT INTO ... SELECT</code> query insert data into final table with correct partition.<br><img src="http://130.211.135.58/wp-content/uploads/2015/03/load-data-staging.png" alt="Loading Partitioned Table from Stagin Table"></p>
+<p>We can use both static and dynamic partitioning with this strategy. They are explained in more details in subsequent section. Data transformation and cleanser can be applied while selecting the data from temp table, which adds extra flexibility. Most of the times partitioned tables carry Hive specific data formats such as ORC which are also compressed. This method supports data conversion out of the box.</p>
+<h3 id="load-data-inpath"><a href="#Load-Data-Inpath" class="headerlink" title="Load Data Inpath"></a>Load Data Inpath <a href="#load-data-inpath" class="header-anchor">#</a></h3><p>File can be directly moved from HDFS directory to partitioned table using <code>LOAD DATA INPATH &apos;filepath&apos; INTO TABLE Demographic PARTITION (BirthDate=&apos;2014-01-12&apos;)</code><br><img src="http://130.211.135.58/wp-content/uploads/2015/03/load-data-direct.png" alt="Loading Partitioned Table directly"><br>This is a pure copy operation which means, we won&#x2019;t be able to apply any data transformations, file format conversions and dynamic partitioning.</p>
+<h3 id="copy-data-data-and-perform-alter-table"><a href="#Copy-Data-Data-and-Perform-Alter-Table" class="headerlink" title="Copy Data Data and Perform Alter Table"></a>Copy Data Data and Perform Alter Table <a href="#copy-data-data-and-perform-alter-table" class="header-anchor">#</a></h3><p>This is very similar to <code>Load Data Inpath</code> method. But in this method we copy data manually to partition directory and then alter table to add this directory using <code>ALTER TABLE ... ADD PARTITION</code> query.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> Demographic <span class="keyword">ADD</span> <span class="keyword">PARTITION</span> (BirthDate = <span class="string">&apos;2014-01-14&apos;</span>) location <span class="string">&apos;/any/location/on/hdfs&apos;</span>;</div></pre></td></tr></table></figure>
+<p>We do not need to follow naming convention for this method to work. But generally you should.</p>
+<h2 id="partitioning-methodology"><a href="#Partitioning-Methodology" class="headerlink" title="Partitioning Methodology"></a>Partitioning Methodology <a href="#partitioning-methodology" class="header-anchor">#</a></h2><p>The nomenclature <code>static</code> and <code>dynamic</code> depends on whether partition value is derived at runtime or at compile time.</p>
+<ul>
+<li><strong>Static Partitioning</strong>: The value of the partition key is provided along with the query itself. Hence, we know the exact value at the compile time itself.</li>
+<li><strong>Dynamic Partitioning</strong>: The value of the partition key is derived at run time from query execution and partitions are created on the fly.</li>
+</ul>
+<h3 id="static-partitioning"><a href="#Static-Partitioning" class="headerlink" title="Static Partitioning"></a>Static Partitioning <a href="#static-partitioning" class="header-anchor">#</a></h3><p>Static partitioning is useful when you know exactly to which partition data in hand belong. Suppose you get a file on a daily basis for yesterday&#x2019;s data feed. Then one can easily load data in partition which is for yesterday&#x2019;s date[example:&#x2019;2014-01-01&#x2019;]. First load data in staging table i.e. <code>DEMOGRAPHIC_TEMP</code> and then load it into main partitioned table i.e. <code>DEMOGRAPHIC</code><br><code>INSERT INTO TABLE DEMOGRAPHIC PARTITION (BIRTHDATE=&apos;2014-01-01&apos;) SELECT * FROM DEMOGRAPHIC_TEMP</code><br>As you can see, we have already mentioned partition date and Hive only has to move data to this directory.</p>
+<h3 id="dynamic-partitioning"><a href="#Dynamic-Partitioning" class="headerlink" title="Dynamic Partitioning"></a>Dynamic Partitioning <a href="#dynamic-partitioning" class="header-anchor">#</a></h3><p>Most of the time, we need to consume files which have data for multiple partitions. It is inconvenient to separate data for each partition by filtering and then add this data one by one by using static partitioning. Hive provides a very useful feature of dynamic partitioning. You just need to use <code>INSERT INTO ... SELECT</code> syntax with few dynamic partitioning related parameters set. Hive will automatically filter the data, create directories, move filtered data to appropriate directory and create partition over it.<br>Parameters which should be set:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">set</span> hive.exec.dynamic.partition=<span class="literal">true</span>;</div><div class="line"><span class="keyword">set</span> hive.exec.dynamic.partition.mode=nonstrict;</div><div class="line"><span class="keyword">set</span> hive.exec.max.dynamic.partitions.pernode={appropriate <span class="built_in">int</span> val}</div><div class="line"><span class="keyword">set</span> hive.exec.max.dynamic.partitions={appropriate <span class="built_in">int</span> val}</div></pre></td></tr></table></figure>
+<p>The methodology would remain the same,first load data in staging table i.e. <code>DEMOGRAPHIC_TEMP</code> and then load it into main partitioned table i.e. <code>DEMOGRAPHIC</code><br><code>INSERT INTO TABLE DEMOGRAPHIC PARTITION (BIRTHDATE) SELECT *,to_date(BIRTHDATETIME) FROM DEMOGRAPHIC_TEMP</code><br>We have only mentioned partition column and It&#x2019;s Hive&#x2019;s responsibility to add data to appropriate directory. Hive will use last column to deduce the partition for data. As you can see, I have used <code>to_date</code> UDF to convert &#x2018;2014-01-01 02:02:20&#x2019; to &#x2018;2014-01-01&#x2019;. That is because I do not want to end up creating partition at second&#x2019;s granularity.<br>If <code>SELECT to_date(BIRTHDATETIME) FROM DEMOGRAPHIC_TEMP GROUP BY to_date(BIRTHDATETIME)</code> gives four values, then four partitions would be created for those four values.</p>
+<h2 id="conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion <a href="#conclusion" class="header-anchor">#</a></h2><p>With fairly huge dataset, it would take ages to perform even simpler queries. But with the help of Hive partitioning, we can perform queries more efficiently where only subset of data is data to be processed. Hive provides greater flexibility to create partitions, maintain partitions and remove them if necessary.<br>I have also seen some extra advantages such as ability to clean data for only few partitions. I would have had nightmares if I had to do it for nonpartitioned tables.<br>But still if someone wants to query complete dataset then hive partitioning is not going to help. As well over partitioning can end up causing more troubles than gains. With great power comes , great responsibility.</p>
+<h2 id="tips-and-precautions"><a href="#Tips-and-Precautions" class="headerlink" title="Tips and Precautions"></a>Tips and Precautions <a href="#tips-and-precautions" class="header-anchor">#</a></h2><p>Hive can be used to advantage, if we follow good practices and take some precautions. Taking into consideration, NameNode capacity, available resources and gain we want from partitioning we can make a call about table definition.</p>
+<ul>
+<li><strong>Do not Abuse Dynamic Partitioning</strong>: Dynamic partitioning is a great addition to Hive. But it is too easy to abuse it. Suppose, I know that a particular dataset belongs to a particular partition. If in this case, I use dynamic partitions, then I am spawning unnecessary Reducers to partition data making process inefficient.</li>
+<li><strong>Use of <code>MSCK REPAIR TABLE</code></strong>: If we have data in appropriate format i.e. in tables FileFormat and we know exact partition for that data then we can just create a directory with proper naming convention in table location and perform <code>MSCK REPAIR TABLE TABLE_NAME</code> to add those partition to table. This is particularly useful when I am moving data from one location to another. Also if in case few partition directories were removed and table is external, then table&#x2019;s metadata won&#x2019;t be updated automatically. So Hive will still be looking for this partition folder and error out. To prevent this from happening, perform <code>MSCK REPAIR</code> and you should be good.</li>
+<li><strong>Prohibit Yourself from Overwhelming NameNode</strong>: While making use of dynamic partitioning, one should take care of no of partitions which could be generated as a output of <code>SELECT</code> query. If too many partitions are produced then Hive will try to create that many directories and move files to those directories putting strain on our beloved NameNode.</li>
+<li><strong>Use <code>INSERT OVERWRITE ... SELECT</code> Cautiously</strong>: This one holds true for dynamic partitioning. If file being processed dynamically contains only few rows in source table for already existing partition in destination table, then you run into risk of that data being overwritten. This approach has the potential of data loss. If there are multiple partition columns, then you can partially specify partition column value to lower the risk.</li>
+<li><strong>Include Partitioned Column in <code>WHERE</code> clause</strong>: To use partitioned column properly, one should always include it in the <code>WHERE</code> clause. Otherwise, partitioned columns are pretty much useless.</li>
+<li><strong>Check of Cardinality of Data</strong>: Data partitioning with high cardinality is going to create large number of partitions with very small amount of data in it. NameNode and in turn your cluster admin are not going to like it.</li>
+<li><strong>Do not create too many [Nested] Partitions</strong>:This is same as that of cardinality of data.</li>
+<li><strong>For small dataset, better off with unpartitioned table</strong>: Smaller datasets should not be partitioned. You won&#x2019;t loose much performance by not partitioning the data.</li>
+<li><strong>Apply Transformations, if necessary</strong>: Apply transformations before creating partitions dynamically. Staging table approach can easily deal with most of the transformation requirements. One example would be to convert DateTime column to Date column. Trim the data, as values with spaces would be treated as valid values.</li>
+<li><strong>Keep Raw fields, if you can</strong>: If you are going to apply transformations before creating partitioned column value, make sure you also keep raw data as well. If DateTime column is converted into Date column then it would be impossible to perform query which needs Hourly resolution.</li>
+</ul>
+<h2 id="references"><a href="#References" class="headerlink" title="References"></a>References <a href="#references" class="header-anchor">#</a></h2><ul>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTable" target="_blank" rel="external">Hive Language Manual - Create Table</a></li>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-AddPartitions" target="_blank" rel="external">Hive Language Manual - Alter Table</a></li>
+<li><a href="https://issues.apache.org/jira/browse/HIVE-936" target="_blank" rel="external">Dynamic Partition Request JIRA</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;After having used Hive for sometime now, I can really say, it has provided some serious productivity boost. Not only that, it is really easy to maintain and most of the things are transparent to the developer. Really huge amount of data can be efficiently crunched using Hive!&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+    
+      <category term="Hive" scheme="http://yoursite.com/categories/Big-Data/Hive/"/>
+    
+      <category term="Tutorial" scheme="http://yoursite.com/categories/Big-Data/Hive/Tutorial/"/>
+    
+      <category term="Uncategorized" scheme="http://yoursite.com/categories/Big-Data/Hive/Tutorial/Uncategorized/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>HDFS: Expained as Comic!</title>
+    <link href="http://yoursite.com/2015/03/04/hdfs-expained-as-comic/"/>
+    <id>http://yoursite.com/2015/03/04/hdfs-expained-as-comic/</id>
+    <published>2015-03-04T10:41:00.000Z</published>
+    <updated>2016-09-14T10:09:36.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>I always look for content delivered in visual medium whenever I try to learn new things. After watching videos, going through lengthy articles and ending up writing one such article myself, I found a very interesting comic to learn about HDFS protocols and internals.</p>
+<a id="more"></a>
+<p>Very well done Maneesh, you just saved some time for me. Hope to see more such comics in future.</p>
+<iframe height="600" src="https://docs.google.com/file/d/0B-QX65Kped5YQWlNdjY1WkIwTWM/preview" width="800"></iframe>
+
+<p>##Reference<br><a href="http://www.mail-archive.com/common-user@hadoop.apache.org/msg15171.html" target="_blank" rel="external">http://www.mail-archive.com/common-user@hadoop.apache.org/msg15171.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;I always look for content delivered in visual medium whenever I try to learn new things. After watching videos, going through lengthy articles and ending up writing one such article myself, I found a very interesting comic to learn about HDFS protocols and internals.&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+    
+      <category term="HDFS" scheme="http://yoursite.com/categories/Big-Data/HDFS/"/>
+    
+    
+      <category term="Behind-The-Scene" scheme="http://yoursite.com/tags/Behind-The-Scene/"/>
+    
+      <category term="Comics" scheme="http://yoursite.com/tags/Comics/"/>
+    
+      <category term="HDFS" scheme="http://yoursite.com/tags/HDFS/"/>
+    
+      <category term="Tutorial" scheme="http://yoursite.com/tags/Tutorial/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>#IssueFix : Too many Hive Staging Directories everywhere</title>
+    <link href="http://yoursite.com/2015/03/04/issuefix-too-many-hive-staging/"/>
+    <id>http://yoursite.com/2015/03/04/issuefix-too-many-hive-staging/</id>
+    <published>2015-03-04T10:11:00.000Z</published>
+    <updated>2016-09-14T10:22:59.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="issue-description"><a href="#Issue-Description" class="headerlink" title="Issue Description:"></a>Issue Description: <a href="#issue-description" class="header-anchor">#</a></h2><p>While working with Hive, we noticed that there are too many directories with name <code>.hive-staging_hive_yyyy-MM-dd_HH-mm-ss_SSS_xxxx-x</code> in the table location directories. These directories were added to the location with execution of each query.</p>
+<p>At the same time, few users were facing problems like access permission issues on table directories even when each table had read access for all users and groups.</p>
+<p>Error while compiling statement: FAILED: RuntimeException Cannot create staging directory &#x2018;hdfs://namenode:8020/path/to/table/hive-staging_hive_yyyy-MM-dd_HH-mm-ss_SSS_xxxx-x&#x2019;: Permission denied: user=uname, access=WRITE, inode=&#x201D;hdfs://namenode:8020/path/to/table&#x201D;:uname2:hive:drwxrwxr-x at&#x2026;&#x2026;.</p>
+<a id="more"></a>
+<h2 id="rca"><a href="#RCA" class="headerlink" title="RCA:"></a>RCA: <a href="#rca" class="header-anchor">#</a></h2><p>While investigating the issue, we found every hive query was trying to treat table location as the Hive staging directory. Ideally it should be somewhere in the <code>/tmp</code> directory in HDFS. Users facing access problems were the ones which did not had write access to the table location which again is valid as you do not want everyone to mess with the data.</p>
+<p>After doing some search, we found out that other CDH users were also facing this issue and they had already come up with work around for the issue. This article expains the root cause analysis of the issue.</p>
+<h3 id="solution"><a href="#Solution" class="headerlink" title="Solution:"></a>Solution: <a href="#solution" class="header-anchor">#</a></h3><p>We had to change few properties for Hive which are located in <code>hive-site.xml</code>. We used Cloudera Manger web configuration section of Hive to do it. Safety valves were changed for all roles in Hive service. So non data platform team memebers were able to execute query without any issues and no <code>.hive-staging</code> directories were being created in table location. But still this issue persisted when the queries were executed from Hive Cli. So we had to change the safety valve for client configurations as well. After deploying the configurations cluster wide, the issue disappeared.</p>
+<p><strong>Configurations:</strong><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#xA0;<span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">&#xA0; &#xA0; <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.exec.stagingdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">&#xA0; &#xA0; <span class="tag">&lt;<span class="name">value</span>&gt;</span>/tmp/hive-staging/.hive<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">&#xA0; <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>OR<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></div><div class="line">&#xA0;&#xA0;&#xA0;<span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.exec.stagingdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">&#xA0;&#xA0;&#xA0;<span class="tag">&lt;<span class="name">value</span>&gt;</span>${hive.exec.scratchdir}<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>Use second property configuration if data security is of high importance!!<br><strong>What Broke it:</strong><br>We recently upgraded our cluster to CDH 5.3 and it has Hive encryption feature in place. Hive uses  the encryption provided by HDFS. Because of limitations put forth by HDFS encryption,  the table location HDFS directory is used as hive staging directory and hence it broke previous hive settings.</p>
+<h3 id="references"><a href="#References" class="headerlink" title="References:"></a>References: <a href="#references" class="header-anchor">#</a></h3><ul>
+<li><a href="https://groups.google.com/a/cloudera.org/forum/#!topic/cdh-user/ebuF_9_RODQ" target="_blank" rel="external">https://groups.google.com/a/cloudera.org/forum/#!topic/cdh-user/ebuF_9_RODQ</a></li>
+<li><a href="http://community.cloudera.com/t5/Batch-SQL-Apache-Hive/CDH-5-3-Hive-staging-directory-has-wrong-default-value/td-p/23585" target="_blank" rel="external">http://community.cloudera.com/t5/Batch-SQL-Apache-Hive/CDH-5-3-Hive-staging-directory-has-wrong-default-value/td-p/23585</a></li>
+<li><a href="https://issues.apache.org/jira/browse/HIVE-5207" target="_blank" rel="external">https://issues.apache.org/jira/browse/HIVE-5207</a></li>
+<li><a href="http://www.cloudera.com/content/cloudera/en/documentation/core/latest/topics/cdh_sg_component_kms.html#concept_gmj_n3d_np_unique_1" target="_blank" rel="external">http://www.cloudera.com/content/cloudera/en/documentation/core/latest/topics/cdh_sg_component_kms.html#concept_gmj_n3d_np_unique_1</a></li>
+<li><a href="https://issues.apache.org/jira/browse/HIVE-8065" target="_blank" rel="external">https://issues.apache.org/jira/browse/HIVE-8065</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;Issue-Description&quot;&gt;&lt;a href=&quot;#Issue-Description&quot; class=&quot;headerlink&quot; title=&quot;Issue Description:&quot;&gt;&lt;/a&gt;Issue Description:&lt;/h2&gt;&lt;p&gt;While working with Hive, we noticed that there are too many directories with name &lt;code&gt;.hive-staging_hive_yyyy-MM-dd_HH-mm-ss_SSS_xxxx-x&lt;/code&gt; in the table location directories. These directories were added to the location with execution of each query.&lt;/p&gt;
+&lt;p&gt;At the same time, few users were facing problems like access permission issues on table directories even when each table had read access for all users and groups.&lt;/p&gt;
+&lt;p&gt;Error while compiling statement: FAILED: RuntimeException Cannot create staging directory ‘hdfs://namenode:8020/path/to/table/hive-staging_hive_yyyy-MM-dd_HH-mm-ss_SSS_xxxx-x’: Permission denied: user=uname, access=WRITE, inode=”hdfs://namenode:8020/path/to/table”:uname2:hive:drwxrwxr-x at…….&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+    
+      <category term="Hive" scheme="http://yoursite.com/categories/Big-Data/Hive/"/>
+    
+      <category term="IssueFix" scheme="http://yoursite.com/categories/Big-Data/Hive/IssueFix/"/>
+    
+    
+      <category term="IssueFix" scheme="http://yoursite.com/tags/IssueFix/"/>
+    
+      <category term="Hive" scheme="http://yoursite.com/tags/Hive/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HDFS: How a file is written!</title>
+    <link href="http://yoursite.com/2015/03/04/hdfs-how-file-is-written/"/>
+    <id>http://yoursite.com/2015/03/04/hdfs-how-file-is-written/</id>
+    <published>2015-03-04T07:47:00.000Z</published>
+    <updated>2016-09-14T10:38:30.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>HDFS is distributed file system capable of storing very large files without much effort. HDFS spans across multiple machines on multiple racks. There are two types of nodes in HDFS:</p>
+<ul>
+<li>DataNode</li>
+<li>NameNode</li>
+</ul>
+<p>The nodes responsible for storing files and handling IOs are DataNodes where as NameNode is responsible for keeping the fs image and upkeep of the HDFS. HDFS is robust, highly flexible, faster, fault&#xA0;tolerant,&#xA0;easier to maintain, easier to scale out and reliable. Various decisions made while designing HDFS are responsible for such features and it makes HDFS suitable for many usecases.&#xA0; Lets have a brief look at how HDFS is designed and how file is written internally.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#writing-a-file-to-hdfs">Writing a file to HDFS</a><ul>
+<li><a href="#from-low-earth-orbit">From Low Earth Orbit:</a></li>
+<li><a href="#from-36000-feet">From 36000 feet:</a></li>
+<li><a href="#from-5000-feet">From 5000 feet:</a></li>
+</ul>
+</li>
+<li><a href="#references">References:</a></li>
+</ul>
+<!-- tocstop -->
+</div>
+
+<p><a href="http://130.211.135.58/wp-content/uploads/2015/03/HDFS-topology.png" target="_blank" rel="external"><img src="http://130.211.135.58/wp-content/uploads/2015/03/HDFS-topology.png" alt=""></a></p>
+<p>HDFS provides a very easy API for interacting with the files stored in it. HDFS can be queried from command line, code and over web. To add sugar coating, its file system commands resemble linux file system commands and it also hide away the internal complexities of distributed file system. For example, if you want to read a file from HDFS then execute <code>hadoop fs -cat /path/to/file/on/hdfs</code> which is very similar to <code>cat /path/to/file</code> in linux. A single file is distributed across cluster and can be accessed with the help of API. HDFS takes most of the pain while interacting with the client. The same thing happens when you push a file to HDFS.&#xA0;</p>
+<p>Essentially, all IO commands issued to HDFS inolves multiple steps and they are highly optimized for maximum throughput and reliability. While writing a file to HDFS, one can simply exeute <code>hadoop fs -put /path/to/file/on/local /path/to/file/on/hdfs</code> and HDFS will make sure the file is written to multiple nodes. HDFS also maintains metadata of these blocks so that files can be read from it.&#xA0;</p>
+<p>Have you ever wondered, what really goes on behind the scene while you execute these commands? Well, whatever happens HDFS shouldn&#x2019;t stay in HDFS and we should definitely know about it. Lets dive deep to see how a file is written on HDFS.</p>
+<h2 id="writing-a-file-to-hdfs"><a href="#Writing-a-file-to-HDFS" class="headerlink" title="Writing a file to HDFS"></a>Writing a file to HDFS <a href="#writing-a-file-to-hdfs" class="header-anchor">#</a></h2><p>Lets have a look at how file can be written to HDFS with the help of command line tool. You can choose to write the file using web API, programmatically or through command line but the internals will remain exactly the same.&#xA0;</p>
+<h3 id="from-low-earth-orbit"><a href="#From-Low-Earth-Orbit" class="headerlink" title="From Low Earth Orbit:"></a>From Low Earth Orbit: <a href="#from-low-earth-orbit" class="header-anchor">#</a></h3><p>To write a file to HDFS one should execute&#xA0;<code>-copyFromLocal</code>, <code>-put</code>, <code>-appendToFile</code>&#xA0;with appropriate arguments and options. Done! File is split into blocks and then those blocks are placed onto HDFS on different DataNodes.</p>
+<h3 id="from-36000-feet"><a href="#From-36000-feet" class="headerlink" title="From 36000 feet:"></a>From 36000 feet: <a href="#from-36000-feet" class="header-anchor">#</a></h3><p>When we execute one of these commands, client should know to which namespace it needs to write the file. It means, it need to know the NameNode seating on top of that namespace. Client connects to NameNode, get the DataNode addresses which are going to host the files and transfers the files on those DataNodes.</p>
+<p>If there were five blocks and replication factor of three, then HDFS with five DataNodes will store blocks such that unavailability of any of the node won&#x2019;t cause any data loss.<br><a href="http://130.211.135.58/wp-content/uploads/2015/03/replication-no-policy.png" target="_blank" rel="external"><img src="http://130.211.135.58/wp-content/uploads/2015/03/replication-no-policy.png" alt=""></a></p>
+<p>Even if DataNode 2 Goes down, the files are still available on other nodes. Hence we still have data and then HDFS can re-replicate the lost blocks.</p>
+<p><a href="http://130.211.135.58/wp-content/uploads/2015/03/replication-no-policy-data-loss.png" target="_blank" rel="external"><img src="http://130.211.135.58/wp-content/uploads/2015/03/replication-no-policy-data-loss.png" alt=""></a><br>Replication also helps us increase data locality. It also helps in MapReduce principle which says &#x201C;Process should travel to data as it is cheap and not the other way around&#x201D;.</p>
+<h3 id="from-5000-feet"><a href="#From-5000-feet" class="headerlink" title="From 5000 feet:"></a>From 5000 feet: <a href="#from-5000-feet" class="header-anchor">#</a></h3><p>Well, the data has been broken to blocks, written to multiple nodes, it has been replicated and now we can start reading it from HDFS, This raises few questions!</p>
+<ol>
+<li>Who decides the replication factor and block size?</li>
+<li>Who breaks the file to blocks?</li>
+<li>How data is written to DataNodes and essentially, how it is replicated across cluster?</li>
+<li>How replicas are placed, how DataNodes are chosen for given file block?</li>
+<li>How optimized utilization of resources is ensured?</li>
+</ol>
+<p>Lets drill down a bit for answering these questions.</p>
+<h4 id="replication-factor-and-block-size"><a href="#Replication-Factor-and-Block-Size" class="headerlink" title="Replication Factor and Block Size:"></a>Replication Factor and Block Size: <a href="#replication-factor-and-block-size" class="header-anchor">#</a></h4><p>By default, HDFS has a replication factor of 3 and block size of 64 Mb. These properties can be changed at the time of setup. <code>dfs.replication</code> and <code>fs.block.size</code> from <code>hdfs-site.xml</code>&#xA0;are responsible for these properties. If cluster is already operational and you decide to change these properties afterwards, existing blocks on the cluster will remain unchanged and only affects newly added blocks to the cluster.<br>Client receives these settings from <del datetime="2015-05-07T13:15:48+00:00">NameNode</del> DataNode. These are file-level settings implying client has ability to override these properties per file basis. Client then breaks file into blocks as it starts process to store it in HDFS.</p>
+<h4 id="writing-data"><a href="#Writing-Data" class="headerlink" title="Writing Data:"></a>Writing Data: <a href="#writing-data" class="header-anchor">#</a></h4><p>After getting all configurations, client asks NameNode for list of DataNodes on which it should host the blocks. Blocks are sequentially written to HDFS and for each block NameNode provides list.<br>The flow diagram explains the process.</p>
+<p><a href="http://130.211.135.58/wp-content/uploads/2015/03/WriteFile.png" target="_blank" rel="external"><img src="http://130.211.135.58/wp-content/uploads/2015/03/WriteFile.png" alt=""></a></p>
+<p>HDFS forms a <em>replication pipeline</em> when data flow starts from client. This replication pipeline ensures that the needed replication factor is met.<br>In the flow diagram above, client starts streaming packets to the <code>DN-1</code>. <code>DN-1</code> in turn transfers these packets to other DataNode and then that data node transfers the data to subsequent DataNode if necessary. These DataNodes start transferring packet as soon as they receive a data packet completely. Data packet is buffered at each hop in the pipeline. The client do not wait for acknowledgement from these DataNodes and starts to transmit another packet irrespective of status of previous packet. Client also sends checksum for each block written to the HDFS which helps in ensuring the integrity of the data.<br>Once the data block has been streamed completely to the DataNode, that DataNode sends report to NameNode.<br>Then this process is repeated for another block in the file. All the blocks have same size except for last block. When all blocks have been written to HDFS, NameNode finalizes the metadata and updates the journal file.<br>I have left out concept of <em>lease</em>, <code>hflush</code>/<code>hsync</code> and <code>close</code>,<em>Write Once Read Multiple</em> concept, <em>checkpoint</em>, <em>journal</em>, <em>fsimage</em> as these are not in the scope of this article.&#xA0;</p>
+<h4 id="choosing-datanodes"><a href="#Choosing-DataNodes" class="headerlink" title="Choosing DataNodes:"></a>Choosing DataNodes: <a href="#choosing-datanodes" class="header-anchor">#</a></h4><p>HDFS is rack aware and forms a network topology based on rack along with DataNode configurations. Once DataNodes have been associated with a particular rack, HDFS can then use its algorithm to deduce on which node the data should be stored.&#xA0;</p>
+<p>Lets see how this algorithm works:<br>HDFS calculates network topology distance of each node from writer client. When a new block is created, it places the first replica on the node where the writer is located. The second and the third replicas are placed on two different nodes in a different rack. The rest are placed on random nodes with restrictions that no more than one replica is placed at any one node and no more than two replicas are placed in the same rack, if possible. The choice to place the second and third replicas on a different rack better distributes the block replicas for a single file across the cluster. If the first two replicas were placed on the same rack, for any file, two-thirds of its block replicas would be on the same rack.</p>
+<p>After all target nodes are selected, nodes are organized as a pipeline in the order of their proximity to the first replica. Data are pushed to nodes in this order. For reading, the NameNode first checks if the client&#x2019;s host is located in the cluster. If yes, block locations are returned to the client in the order of its closeness to the reader. The block is read from DataNodes in this preference order.</p>
+<p>This policy reduces the inter-rack and inter-node write traffic and generally improves write performance. Because the chance of a rack failure is far less than that of a node failure, this policy does not impact data reliability and availability guarantees. In the usual case of three replicas, it can reduce the aggregate network bandwidth used when reading data since a block is placed in only two unique racks rather than three.<br><strong>Algorithm takes following parameters in consideration</strong>:</p>
+<ol>
+<li>Whether selected node is free, if it is not then chose another.</li>
+<li>If given node has free space left.</li>
+<li>Health of the given node.</li>
+</ol>
+<p><strong>Algorithm does not take into consideration</strong>:</p>
+<ol>
+<li>If data transfer is going to keep size of HDFS uniform across nodes i.e. balanced.</li>
+<li>Network bandwidth between two nodes.</li>
+</ol>
+<p><strong>Algorithm ensures</strong>:</p>
+<ol>
+<li>Data is kept onto multiple racks as per rack placement policy.</li>
+<li>Minimizes the write cost.</li>
+<li>Maximizes data reliability, availability and aggregate read bandwidth.</li>
+</ol>
+<p>HDFS carries arsenal of tools with it to ensure data is always available in required form. Be it block scanner, balancer, replication manager or extra NameNodes serving as CheckpointNode/BackupNode, everything is very well orchestrated and hence HDFS is the most adapted file system for Hadoop.</p>
+<h2 id="references"><a href="#References" class="headerlink" title="References:"></a>References: <a href="#references" class="header-anchor">#</a></h2><p><a href="http://www.aosabook.org/en/hdfs.html" target="_blank" rel="external">http://www.aosabook.org/en/hdfs.html</a><br><a href="https://hadoop.apache.org/docs/r1.1.1/api/org/apache/hadoop/net/NetworkTopology.html" target="_blank" rel="external">https://hadoop.apache.org/docs/r1.1.1/api/org/apache/hadoop/net/NetworkTopology.html</a><br><a href="https://hadoop.apache.org/docs/r2.3.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml" target="_blank" rel="external">https://hadoop.apache.org/docs/r2.3.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml</a><br><a href="http://static.googleusercontent.com/media/research.google.com/en//archive/gfs-sosp2003.pdf" target="_blank" rel="external">http://static.googleusercontent.com/media/research.google.com/en//archive/gfs-sosp2003.pdf</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;HDFS is distributed file system capable of storing very large files without much effort. HDFS spans across multiple machines on multiple racks. There are two types of nodes in HDFS:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DataNode&lt;/li&gt;
+&lt;li&gt;NameNode&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The nodes responsible for storing files and handling IOs are DataNodes where as NameNode is responsible for keeping the fs image and upkeep of the HDFS. HDFS is robust, highly flexible, faster, fault&amp;nbsp;tolerant,&amp;nbsp;easier to maintain, easier to scale out and reliable. Various decisions made while designing HDFS are responsible for such features and it makes HDFS suitable for many usecases.&amp;nbsp; Lets have a brief look at how HDFS is designed and how file is written internally.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://yoursite.com/categories/Big-Data/"/>
+    
+      <category term="HDFS" scheme="http://yoursite.com/categories/Big-Data/HDFS/"/>
+    
+      <category term="Tutorial" scheme="http://yoursite.com/categories/Big-Data/HDFS/Tutorial/"/>
+    
+    
+      <category term="Behind-The-Scene" scheme="http://yoursite.com/tags/Behind-The-Scene/"/>
+    
+      <category term="HDFS" scheme="http://yoursite.com/tags/HDFS/"/>
+    
+      <category term="Tutorial" scheme="http://yoursite.com/tags/Tutorial/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JavaScript: Equality !== Truthyness</title>
+    <link href="http://yoursite.com/2015/02/22/javascript-equality-truthyness/"/>
+    <id>http://yoursite.com/2015/02/22/javascript-equality-truthyness/</id>
+    <published>2015-02-22T13:01:07.000Z</published>
+    <updated>2016-09-14T10:06:32.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>JavaScript, as others languages, have branching statements. These branching statements decide the flow of execution when provided with few specific conditions[i.e. stimulus]. These conditions are Boolean in nature. Besides default Boolean variables and equality operators, each DataType in JS has a Boolean[Truthy/Falsy] associated with it. In addition to these, equality operator are also of two type, strict equality operator and Coersion based equality operator. Understanding each of these can save a lot of pain while writing complex JS code.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#mission-of-this-tutorial">Mission of This Tutorial</a><ul>
+<li><a href="#main-problem">Main Problem:</a></li>
+</ul>
+</li>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#truthyness-falsyness-of-objects">Truthyness/Falsyness of Objects</a><ul>
+<li><a href="#truthy">Truthy:</a></li>
+<li><a href="#falsy">falsy:</a></li>
+</ul>
+</li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#abstract-equality-operator">Abstract Equality Operator</a></li>
+<li><a href="#strict-equality-operator">Strict Equality Operator</a></li>
+<li><a href="#caveats">Caveats</a></li>
+<li><a href="#widely-used-techniques">Widely Used techniques</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<!-- tocstop -->
+<p></div></p>
+<h2 id="mission-of-this-tutorial"><a href="#Mission-of-This-Tutorial" class="headerlink" title="Mission of This Tutorial"></a>Mission of This Tutorial <a href="#mission-of-this-tutorial" class="header-anchor">#</a></h2><h3 id="main-problem"><a href="#Main-Problem" class="headerlink" title="Main Problem:"></a>Main Problem: <a href="#main-problem" class="header-anchor">#</a></h3><p>To understand how JS equality operators and truthy/falsy values can be used to advantage.</p>
+<p>This problem statement can be divided into multiple parts:</p>
+<ul>
+<li>Understand how variables/objects act as truthy/falsy values.</li>
+<li>Understand Coercion based abstract equality operator.</li>
+<li>Understand Strict equality operator.</li>
+<li>know few caveats in the operator</li>
+<li>Explore some techniques used by folks for equality operations.</li>
+</ul>
+<h2 id="getting-started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started <a href="#getting-started" class="header-anchor">#</a></h2><p>Being an Object Oriented language javascript has few types of objects which can be structured as,</p>
+<ul>
+<li><code>Number</code></li>
+<li><code>String</code></li>
+<li><code>Boolean</code></li>
+<li><p><code>Object</code></p>
+</li>
+<li><p><code>Function</code></p>
+</li>
+<li><code>Array</code></li>
+<li><code>Date</code></li>
+<li><p><code>RegExp</code></p>
+</li>
+<li><p><code>Null</code></p>
+</li>
+<li><code>Undefined</code><br>All these objects have a boolean value associated with them. These boolean values change with the change in state of given object. For example, if the number is 0 it&#x2019;s boolean value is falsy where as if number is anything else than 0 it is truthy. This truthyness or falsyness of values also impact equality operators.</li>
+</ul>
+<h2 id="truthyness-falsyness-of-objects"><a href="#Truthyness-Falsyness-of-Objects" class="headerlink" title="Truthyness/Falsyness of Objects"></a>Truthyness/Falsyness of Objects <a href="#truthyness-falsyness-of-objects" class="header-anchor">#</a></h2><p>What exactly is Truthy/Falsy values</p>
+<p>When a value is being called truthy, it doesn&#x2019;t necessarily mean that it is <code>true</code>. It means, it is going to result[coerce] to <code>true</code> when evaluated in boolean context.</p>
+<h3 id="truthy"><a href="#Truthy" class="headerlink" title="Truthy:"></a>Truthy: <a href="#truthy" class="header-anchor">#</a></h3><p>In boolean context, value evaluates to true.</p>
+<h3 id="falsy"><a href="#falsy" class="headerlink" title="falsy:"></a>falsy: <a href="#falsy" class="header-anchor">#</a></h3><p>In boolean context, value evaluates to true.</p>
+<p>To check whether a value of Object is truthy or falsy, console of any browser can be used. <code>Boolean()</code> can be used to deduce the nature of the value.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Boolean</span>(<span class="string">&quot;&quot;</span>)</div><div class="line">&gt; <span class="literal">false</span></div><div class="line"><span class="built_in">Boolean</span>(<span class="string">&quot;Hey&quot;</span>)</div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p><code>false</code>, <code>NaN</code>, <code>undefined</code>, <code>null</code>, <code>&quot;&quot;</code>[literal form], <code>0</code> are always falsy leaving all others as truthy which includes <code>[]</code>, <code>{}</code> and empty functions.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Boolean</span>(<span class="literal">false</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="string">&quot;&quot;</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="literal">NaN</span>) </div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="literal">undefined</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="literal">null</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="string">&quot;&quot;</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="number">0</span>) </div><div class="line">&gt;<span class="literal">false</span> </div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>(<span class="string">&quot;0&quot;</span>) </div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<h2 id="usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage <a href="#usage" class="header-anchor">#</a></h2><p>These truthy values can be checked in branching statements.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> ann = {</div><div class="line">    name: <span class="string">&apos;ann&apos;</span>,</div><div class="line">    age: <span class="number">10</span>,</div><div class="line">    preferences: <span class="literal">null</span></div><div class="line">}</div><div class="line"><span class="keyword">var</span> john = {</div><div class="line">    name: <span class="string">&apos;john&apos;</span>,</div><div class="line">    age: <span class="number">11</span>,</div><div class="line">    preferences: <span class="literal">undefined</span></div><div class="line">}</div><div class="line"><span class="keyword">var</span> peter = {</div><div class="line">    name: <span class="string">&apos;peter&apos;</span>,</div><div class="line">    age: <span class="number">11</span>,</div><div class="line">    preferences: [<span class="string">&apos;photography&apos;</span>]</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">var</span> tony = {</div><div class="line">    name: <span class="string">&apos;tony&apos;</span>,</div><div class="line">    age: <span class="number">13</span>,</div><div class="line">    preferences: [<span class="string">&apos;science&apos;</span>, <span class="string">&apos;tech&apos;</span>, <span class="string">&apos;cars&apos;</span>]</div><div class="line">}</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getPreferences</span>(<span class="params">user</span>) </span>{</div><div class="line">        <span class="keyword">if</span> (user.preferences) {</div><div class="line">            <span class="built_in">console</span>.log(user.name + <span class="string">&quot; is interested in &quot;</span> + user.preferences.join());</div><div class="line">        } <span class="keyword">else</span> {</div><div class="line">            <span class="built_in">console</span>.log(user.name + <span class="string">&quot; is not interested in anything that you have to offer&quot;</span>);</div><div class="line">        }</div><div class="line">    }</div><div class="line"></div><div class="line">getPreferences(tony);</div><div class="line">getPreferences(john);</div><div class="line">getPreferences(peter);</div><div class="line">getPreferences(ann);</div></pre></td></tr></table></figure></p>
+<p>This code will work even when preferences is set to <code>0</code> or <code>&quot;&quot;</code> or any other falsy value. But when these falsy values have different meanings in the code, then this approach will fail. Also truthiness is not same as being <code>==true</code>. So any such comparison could lead to unexpected application behavior. For example, <code>[] == true</code> is false even when <code>[]</code> is <code>true</code>.</p>
+<h2 id="abstract-equality-operator"><a href="#Abstract-Equality-Operator" class="headerlink" title="Abstract Equality Operator"></a>Abstract Equality Operator <a href="#abstract-equality-operator" class="header-anchor">#</a></h2><p>Any variable, even a function, can be easily compared in JavaScript. This is all simple as long as variables of same type are being compared. But when variables of different types are compared, things start to become weird. When the types are different javascript coerces these values to make them comparable with each other. Comparison of the falsy value among each other itself is little odd and confusing. In case of comparison between primitive and object operands, object is converted to primitive type if possible.</p>
+<p><code>0</code>, <code>&quot;&quot;</code>, <code>false</code> are all equivalent and can be compared directly.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Boolean</span>([])</div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>([]==<span class="literal">true</span>)</div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="built_in">Boolean</span>([]==<span class="literal">false</span>)</div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="number">0</span> == <span class="string">&quot;&quot;</span></div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="literal">false</span> == <span class="number">0</span></div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="literal">false</span> == <span class="string">&quot;&quot;</span></div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p><code>null</code> and <code>undefined</code> do not play with other fellows well but are good to each other.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="literal">null</span> == <span class="literal">undefined</span></div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="literal">null</span> == <span class="literal">false</span></div><div class="line">&gt;<span class="literal">false</span></div></pre></td></tr></table></figure></p>
+<p>Where as <code>NaN</code> is not equivalent to anything, including <code>NaN</code> itself.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="literal">NaN</span> == <span class="literal">NaN</span></div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="literal">NaN</span> == <span class="literal">false</span></div><div class="line">&gt;<span class="literal">false</span></div></pre></td></tr></table></figure></p>
+<p>This operator also performs type conversion when a string and a number is compared.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">11</span> == <span class="string">&apos;11&apos;</span></div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p>When an object is compared with primitive type then, object is converted to primitive type and then comparison is carried out.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="string">&apos;string1&apos;</span> == <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&apos;string1&apos;</span>)</div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p>Please refer to The <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3" target="_blank" rel="external">The Abstract Equality Comparison Algorithm#sec-11.9.3</a> which explains the abstract equality AKA coercion based equality operator.</p>
+<p>Please note, this equality operator is not transitive.</p>
+<h2 id="strict-equality-operator"><a href="#Strict-Equality-Operator" class="headerlink" title="Strict Equality Operator"></a>Strict Equality Operator <a href="#strict-equality-operator" class="header-anchor">#</a></h2><p>One can easily get around coercion by use of strict equality operator [<code>===</code> and <code>!==</code>]. This operator ensures that operands are of same type and have equivalent values. Javascript does not perform coercion when this operator is used.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="string">&apos;string1&apos;</span> === <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&apos;string1&apos;</span>)</div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="number">11</span> === <span class="string">&apos;11&apos;</span></div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="literal">null</span> === <span class="literal">undefined</span></div><div class="line">&gt;<span class="literal">false</span></div></pre></td></tr></table></figure></p>
+<h2 id="caveats"><a href="#Caveats" class="headerlink" title="Caveats"></a>Caveats <a href="#caveats" class="header-anchor">#</a></h2><p>Javascript is famous for it&#x2019;s equality related caveats. There are few things one must keep in mind while applying various boolean operations on the variables.</p>
+<p>Equality comparison algorithm is kind of shallow check based on references for equality in case of object-object comparison. When two objects are compared, the last resort to evaluate whether they are equal or not is to check if they refer the same object or not. It gives rise to following conditions.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">1</span>) == <span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">1</span>)</div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&quot;hello&quot;</span>) == <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&quot;hello&quot;</span>)</div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line"><span class="string">&quot;hello&quot;</span> == <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&quot;hello&quot;</span>)</div><div class="line">&gt;<span class="literal">true</span></div><div class="line"><span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">0</span>) == <span class="number">0</span></div><div class="line">&gt;<span class="literal">true</span></div><div class="line"></div><div class="line"><span class="number">0</span> == <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">&quot;0&quot;</span>)</div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p>In case of arrays, things are little messy.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[] == []</div><div class="line">&gt;<span class="literal">false</span></div><div class="line"></div><div class="line">![] == []</div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p>This behavior is not that strange. In the first case, both the arrays have different references and hence output is false. Whereas in second case, first <code>![]</code> is executed. It results in <code>false</code>. Then as per Abstract Equality algorithm, <code>[]</code> is coerced to <code>&quot;&quot;</code> or <code>0</code> which is also falsy in nature. So <code>![] == []</code> results in <code>true</code>.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Boolean</span>(<span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="literal">false</span>)) </div><div class="line">&gt;<span class="literal">true</span></div></pre></td></tr></table></figure></p>
+<p>In this case, Boolean is treated as object and truthyness is calculated.</p>
+<h2 id="widely-used-techniques"><a href="#Widely-Used-techniques" class="headerlink" title="Widely Used techniques"></a>Widely Used techniques <a href="#widely-used-techniques" class="header-anchor">#</a></h2><p>To get the truthy value in the comparison one can use double negation before variable reference. <code>!!a</code> returns truthy/falsy value.</p>
+<p>It is also useful to use Abstract euqality operator when none of the falsy value has any meaning in the code logic, they are just plain false for your snippet. Otherwise, always apply strict check. Objects comparison must be carried out in a deep check manner as normal comparator limits itself to shallow check based on reference.</p>
+<h2 id="references"><a href="#References" class="headerlink" title="References"></a>References <a href="#references" class="header-anchor">#</a></h2><p>ToBoolean - <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-9.2" target="_blank" rel="external">http://www.ecma-international.org/ecma-262/5.1/#sec-9.2</a></p>
+<p>ToNumber - <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-9.3" target="_blank" rel="external">http://www.ecma-international.org/ecma-262/5.1/#sec-9.3</a></p>
+<p>ToPrimitive - <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-9.1" target="_blank" rel="external">http://www.ecma-international.org/ecma-262/5.1/#sec-9.1</a></p>
+<p>Strict Equality comparison - <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6" target="_blank" rel="external">http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6</a></p>
+<p>Abstract Equality comparison - <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3" target="_blank" rel="external">http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;JavaScript, as others languages, have branching statements. These branching statements decide the flow of execution when provided with few specific conditions[i.e. stimulus]. These conditions are Boolean in nature. Besides default Boolean variables and equality operators, each DataType in JS has a Boolean[Truthy/Falsy] associated with it. In addition to these, equality operator are also of two type, strict equality operator and Coersion based equality operator. Understanding each of these can save a lot of pain while writing complex JS code.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Javascript" scheme="http://yoursite.com/categories/Javascript/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>CasperJS and Navigation Parallelism</title>
+    <link href="http://yoursite.com/2014/08/25/casperjs-and-navigation-parallelism/"/>
+    <id>http://yoursite.com/2014/08/25/casperjs-and-navigation-parallelism/</id>
+    <published>2014-08-25T12:23:14.000Z</published>
+    <updated>2016-09-14T10:02:03.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>This tutorial will describe how <a href="http://casperjs.org/" target="_blank" rel="external">CasperJS</a> can be used to scrape/test multiple pages at a time. CasperJS is a navigation scripting and testing utility. It&#x2019;s execution takes place in sequential manner, in which one navigation step executes after other. For small number of steps, this behavior of CasperJS is perfectly fine. But as number of steps increase, the amount of time consumed can become very huge. This problem can be solved by introducing parallelism in the execution of navigation steps.<br><a id="more"></a></p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#mission-of-this-tutorial">Mission of This Tutorial</a><ul>
+<li><a href="#main-problem">Main Problem:</a></li>
+</ul>
+</li>
+<li><a href="#getting-started">Getting Started</a><ul>
+<li><a href="#google-scraping-for-a-single-keyword">Google Scraping : For a single keyword</a></li>
+</ul>
+</li>
+<li><a href="#google-scraping-for-multiple-keywords">Google Scraping : For Multiple keywords</a></li>
+<li><a href="#google-scraping-for-multiple-keywords-using-array">Google Scraping : For Multiple keywords, using array</a><ul>
+<li><a href="#solutions">Solutions:</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+</div>
+
+<blockquote>
+<p>Setup guide for CasperJS: <a href="http://casperjs.readthedocs.org/en/latest/installation.html" target="_blank" rel="external">CasperJS Official setup guide</a></p>
+</blockquote>
+<h2 id="mission-of-this-tutorial"><a href="#Mission-of-This-Tutorial" class="headerlink" title="Mission of This Tutorial"></a>Mission of This Tutorial <a href="#mission-of-this-tutorial" class="header-anchor">#</a></h2><h3 id="main-problem"><a href="#Main-Problem" class="headerlink" title="Main Problem:"></a>Main Problem: <a href="#main-problem" class="header-anchor">#</a></h3><p>Scraping search results from the first page for a keyword of google.<br>This problem statement can be divided into multiple parts:</p>
+<ul>
+<li>Scrape results for a single keyword.</li>
+<li>Scrape results for multiple keywords in sequential manner.</li>
+<li>Introduce parallelism to the previous step.</li>
+<li>Address issues, if any.</li>
+</ul>
+<h2 id="getting-started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started <a href="#getting-started" class="header-anchor">#</a></h2><p>Lets begin with the scraping results for a single keyword.</p>
+<h3 id="google-scraping-for-a-single-keyword"><a href="#Google-Scraping-For-a-single-keyword" class="headerlink" title="Google Scraping : For a single keyword"></a>Google Scraping : For a single keyword <a href="#google-scraping-for-a-single-keyword" class="header-anchor">#</a></h3><p>A simple code to open Google search engine results for keyword facebook and then scrape results from first page looks like .</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> results = {};</div><div class="line"><span class="keyword">var</span> casper = <span class="built_in">require</span>(<span class="string">&apos;casper&apos;</span>).create();</div><div class="line"><span class="comment">//It is important that you set the user-agent. Google uses it to render their pages.</span></div><div class="line">casper.userAgent(<span class="string">&quot;Mozilla/5.0 (Windows NT 6.1; WOW64)&quot;</span>+</div><div class="line"><span class="string">&quot; AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36&quot;</span>);</div><div class="line"></div><div class="line"><span class="comment">//Get all the links</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getLinks</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="keyword">var</span> links = <span class="built_in">document</span>.querySelectorAll(<span class="string">&apos;h3.r a&apos;</span>);</div><div class="line"><span class="keyword">return</span> <span class="built_in">Array</span>.prototype.map.call(links, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>{</div><div class="line"> <span class="keyword">return</span> e.getAttribute(<span class="string">&apos;href&apos;</span>);</div><div class="line">});</div><div class="line">}</div><div class="line"><span class="comment">//Add scraped links to results variable</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addScrapedLinksToResults</span>(<span class="params">query</span>)</span>{</div><div class="line"><span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{</div><div class="line">  <span class="keyword">var</span> links = <span class="keyword">this</span>.evaluate(getLinks);</div><div class="line">  <span class="keyword">this</span>.echo(<span class="built_in">JSON</span>.stringify(query));</div><div class="line">  <span class="keyword">this</span>.echo(query +<span class="string">&quot; &quot;</span>+ links.join(<span class="string">&quot;,&quot;</span>));</div><div class="line">  results[query] = links;</div><div class="line"> }</div><div class="line">}</div><div class="line"><span class="keyword">var</span> query = <span class="string">&apos;google&apos;</span>;</div><div class="line"><span class="comment">//We will be using this link instead of form submission.</span></div><div class="line"><span class="comment">//form submission is now based on instant search.</span></div><div class="line"><span class="comment">//As there is no event for html re-rendering, </span></div><div class="line"><span class="comment">//it is going to be difficult to know whether results for the new keyword </span></div><div class="line"><span class="comment">//has rendered or not. </span></div><div class="line"><span class="keyword">var</span> url = <span class="string">&apos;https://www.google.co.in/search?q=&apos;</span>+query;</div><div class="line"></div><div class="line">casper.start();</div><div class="line"></div><div class="line">casper.thenOpen(url);</div><div class="line"></div><div class="line">casper.then(addScrapedLinksToResults(query));</div><div class="line"></div><div class="line">casper.run(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="comment">// echo results in some pretty fashion</span></div><div class="line"> <span class="keyword">this</span>.echo(<span class="string">&apos;Done&apos;</span>);</div><div class="line"> <span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> results){</div><div class="line"> <span class="keyword">this</span>.echo(results[key].length + <span class="string">&apos; links found for &apos;</span>+ key +<span class="string">&apos;:&apos;</span>);</div><div class="line"> <span class="keyword">this</span>.echo(<span class="string">&apos; - &apos;</span> + results[key].join(<span class="string">&apos;\n - &apos;</span>));</div><div class="line">}</div><div class="line"><span class="keyword">this</span>.exit();</div><div class="line">});</div></pre></td></tr></table></figure>
+<p>Save this file as <code>simple-google-scrape.js</code>in bin folder of CasperJS. Run it using following command.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">casperjs simple-google-scrape.js</div></pre></td></tr></table></figure>
+<p>Console will display all the scraped links from the first page.</p>
+<h2 id="google-scraping-for-multiple-keywords"><a href="#Google-Scraping-For-Multiple-keywords" class="headerlink" title="Google Scraping : For Multiple keywords"></a>Google Scraping : For Multiple keywords <a href="#google-scraping-for-multiple-keywords" class="header-anchor">#</a></h2><p>By simply adding multiple <code>casper.thenOpen(url)</code> before<code>casper.run()</code> multiple result pages can be scraped.<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> results = {};</div><div class="line"><span class="keyword">var</span> casper = <span class="built_in">require</span>(<span class="string">&apos;casper&apos;</span>).create();</div><div class="line">casper.userAgent(<span class="string">&quot;Mozilla/5.0 (Windows NT 6.1; WOW64)&quot;</span>+</div><div class="line"><span class="string">&quot; AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36&quot;</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getLinks</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="keyword">var</span> links = <span class="built_in">document</span>.querySelectorAll(<span class="string">&apos;h3.r a&apos;</span>);</div><div class="line">    <span class="keyword">return</span> <span class="built_in">Array</span>.prototype.map.call(links, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>{</div><div class="line">        <span class="keyword">return</span> e.getAttribute(<span class="string">&apos;href&apos;</span>);</div><div class="line">    });</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addScrapedLinksToResults</span>(<span class="params">query</span>)</span>{</div><div class="line"><span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{</div><div class="line">    <span class="keyword">var</span> links = <span class="keyword">this</span>.evaluate(getLinks);</div><div class="line">    <span class="keyword">this</span>.echo(<span class="built_in">JSON</span>.stringify(query));</div><div class="line">    <span class="keyword">this</span>.echo(query +<span class="string">&quot; &quot;</span>+ links.join(<span class="string">&quot;,&quot;</span>));</div><div class="line">    results[query] = links;</div><div class="line">}</div><div class="line">}</div><div class="line"><span class="keyword">var</span> query = <span class="string">&apos;google&apos;</span>;</div><div class="line"><span class="keyword">var</span> url = <span class="string">&apos;https://www.google.co.in/search?q=&apos;</span>+query;</div><div class="line"></div><div class="line">casper.start();</div><div class="line"></div><div class="line">casper.thenOpen(url);</div><div class="line"></div><div class="line">casper.then(addScrapedLinksToResults(query));</div><div class="line">query = <span class="string">&apos;facebook&apos;</span>;</div><div class="line">url = <span class="string">&apos;https://www.google.co.in/search?q=&apos;</span>+query;</div><div class="line"></div><div class="line">casper.thenOpen(url);</div><div class="line"></div><div class="line">casper.then(addScrapedLinksToResults(query));</div><div class="line"></div><div class="line">casper.run(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="comment">// echo results in some pretty fashion</span></div><div class="line"><span class="keyword">this</span>.echo(<span class="string">&apos;Done&apos;</span>);</div><div class="line"><span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> results){</div><div class="line">    <span class="keyword">this</span>.echo(results[key].length + <span class="string">&apos; links found for &apos;</span>+ key +<span class="string">&apos;:&apos;</span>);</div><div class="line">    <span class="keyword">this</span>.echo(<span class="string">&apos; - &apos;</span> + results[key].join(<span class="string">&apos;\n - &apos;</span>));</div><div class="line">}</div><div class="line"><span class="keyword">this</span>.exit();</div><div class="line">});</div></pre></td></tr></table></figure></p>
+<h2 id="google-scraping-for-multiple-keywords-using-array"><a href="#Google-Scraping-For-Multiple-keywords-using-array" class="headerlink" title="Google Scraping : For Multiple keywords, using array"></a>Google Scraping : For Multiple keywords, using array <a href="#google-scraping-for-multiple-keywords-using-array" class="header-anchor">#</a></h2><p>Each <code>thenOpen</code> and <code>then</code> call adds a navigation step to the execution stack of CasperJS. Code for scraping results of multiple keywords can easily be tweaked with array of keywords. For more information on Navigation steps:<a href="http://stackoverflow.com/questions/11604611/what-does-then-really-mean-in-casperjs" target="_blank" rel="external">What Does &#x2018;Then&#x2019; Really Mean in CasperJS</a><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> results = {};</div><div class="line"><span class="keyword">var</span> casper = <span class="built_in">require</span>(<span class="string">&apos;casper&apos;</span>).create();</div><div class="line">casper.userAgent(<span class="string">&quot;Mozilla/5.0 (Windows NT 6.1; WOW64)&quot;</span>+</div><div class="line"><span class="string">&quot; AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36&quot;</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getLinks</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="keyword">var</span> links = <span class="built_in">document</span>.querySelectorAll(<span class="string">&apos;h3.r a&apos;</span>);</div><div class="line">    <span class="keyword">return</span> <span class="built_in">Array</span>.prototype.map.call(links, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>{</div><div class="line">        <span class="keyword">return</span> e.getAttribute(<span class="string">&apos;href&apos;</span>);</div><div class="line">    });</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addScrapedLinksToResults</span>(<span class="params">query</span>)</span>{</div><div class="line"><span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{</div><div class="line">    <span class="keyword">var</span> links = <span class="keyword">this</span>.evaluate(getLinks);</div><div class="line">    <span class="keyword">this</span>.echo(<span class="built_in">JSON</span>.stringify(query));</div><div class="line">    <span class="keyword">this</span>.echo(query +<span class="string">&quot; &quot;</span>+ links.join(<span class="string">&quot;,&quot;</span>));</div><div class="line">    results[query] = links;</div><div class="line">}</div><div class="line">}</div><div class="line"><span class="keyword">var</span> query = [<span class="string">&apos;google&apos;</span>,<span class="string">&apos;facebook&apos;</span>,<span class="string">&apos;twitter&apos;</span>,<span class="string">&apos;pinterest&apos;</span>,<span class="string">&apos;whatsapp&apos;</span>,<span class="string">&apos;skype&apos;</span>];</div><div class="line"></div><div class="line">casper.start();</div><div class="line"></div><div class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&amp;lt;query.length;i++){</div><div class="line"><span class="keyword">var</span> url = <span class="string">&apos;https://www.google.co.in/search?q=&apos;</span>+query[i];</div><div class="line">casper.thenOpen(url);</div><div class="line">casper.then(addScrapedLinksToResults(query[i]));</div><div class="line">}</div><div class="line"></div><div class="line">casper.run(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{</div><div class="line"><span class="comment">// echo results in some pretty fashion</span></div><div class="line"><span class="keyword">this</span>.echo(<span class="string">&apos;Done&apos;</span>);</div><div class="line"><span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> results){</div><div class="line">    <span class="keyword">this</span>.echo(results[key].length + <span class="string">&apos; links found for &apos;</span>+ key +<span class="string">&apos;:&apos;</span>);</div><div class="line">    <span class="keyword">this</span>.echo(<span class="string">&apos; - &apos;</span> + results[key].join(<span class="string">&apos;\n - &apos;</span>));</div><div class="line">}</div><div class="line"><span class="keyword">this</span>.exit();</div><div class="line">});</div></pre></td></tr></table></figure></p>
+<p>This code results in proper and complete result. Based on observations made in previous run, following conclusions could be made:</p>
+<ul>
+<li>Keyword to URL mapping is not proper.</li>
+<li>For some keywords, no results were scraped: <code>then()</code> step[the scraping step] executed before page was loaded. Above step also could be the result of this issue.</li>
+<li>And apparently only one instance worked: Executing <code>exit()</code> on one casper instance caused all other instances to exit.</li>
+</ul>
+<h3 id="solutions"><a href="#Solutions" class="headerlink" title="Solutions:"></a>Solutions: <a href="#solutions" class="header-anchor">#</a></h3><p>To deal with the first problem jQuery is injected in every result page and with the help of <code>$.ready</code> page was scraped at the very right time. This solution eliminated both mapping and zero results problem.<br>For the second problem, status is added to each <code>casper</code> instance with the help of <code>casper.completed = false</code>. Status was then modified to true once instance associated with it has executed all the steps. All the statuses were checked before calling <code>exit()</code> and only iff statuses for all the<code>casper</code> instances are set to true, <code>exit()</code> was issued.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;This tutorial will describe how &lt;a href=&quot;http://casperjs.org/&quot;&gt;CasperJS&lt;/a&gt; can be used to scrape/test multiple pages at a time. CasperJS is a navigation scripting and testing utility. It’s execution takes place in sequential manner, in which one navigation step executes after other. For small number of steps, this behavior of CasperJS is perfectly fine. But as number of steps increase, the amount of time consumed can become very huge. This problem can be solved by introducing parallelism in the execution of navigation steps.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Hack" scheme="http://yoursite.com/categories/Hack/"/>
+    
+      <category term="Javascript" scheme="http://yoursite.com/categories/Hack/Javascript/"/>
     
     
   </entry>

@@ -1,0 +1,61 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Monster : A Centralized Monitoring System With OpenTSDB · Codailama</title><meta name="description" content="Monster : A Centralized Monitoring System With OpenTSDB - Santosh Pingale"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://yoursite.com/atom.xml" title="Codailama"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/pages/resume" target="_self" class="nav-list-link">RESUME</a></li><li class="nav-list-item"><a href="https://github.com/santosh-d3vpl3x" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Monster : A Centralized Monitoring System With OpenTSDB</h1><div class="post-info">Apr 29, 2015</div><div class="post-content"><p>Systems are rapidly becoming distributed in nature. Systems now a days are also implementing components which are designed to perform a specific task. With more and more components, they are spreading rapidly on different machines, different operating systems and they are altogether different in nature.  </p>
+<p>In general, if something goes down or if something is not performing well, then one need to investigate the root cause of issue so as to tune system or to fix it. In complex systems, doing such analysis might become a complex task ending up consuming lots of resources. As there are multiple components involved, there would be multiple teams involved. This further slows down the investigation process. In worst case, business might get impacted because of poor performing system for such a long time. As a solution one can implement Central Monitoring System which collects critical metrics from each of the  collects. With this system in place, if something screws up, one can correlate all the events at a single location reducing the unnecessary overhead analyzing each component separately.<br><a id="more"></a></p>
+<p>This article is more of a overview about how monster, our in house central monitoring system, looks like. </p>
+<div class="toc">
+
+<!-- toc -->
+<ul>
+<li><a href="#system-overview">System Overview</a><ul>
+<li><a href="#server">Server</a></li>
+<li><a href="#datastore">Datastore</a></li>
+<li><a href="#web-services">Web Services</a></li>
+</ul>
+</li>
+<li><a href="#datamonster">DataMonster</a></li>
+<li><a href="#gathering-metrics">Gathering Metrics</a><ul>
+<li><a href="#system-metrics">System Metrics</a></li>
+<li><a href="#applications-logs">Applications Logs</a></li>
+<li><a href="#access-logs">Access Logs</a></li>
+<li><a href="#database-performance">Database Performance</a></li>
+<li><a href="#caching-layer">Caching Layer</a></li>
+</ul>
+</li>
+<li><a href="#observing-trends">Observing Trends</a></li>
+<li><a href="#generating-alerts">Generating Alerts</a></li>
+</ul>
+<!-- tocstop -->
+</div>
+
+<h2 id="system-overview"><a href="#System-Overview" class="headerlink" title="System Overview"></a>System Overview <a href="#system-overview" class="header-anchor">#</a></h2><p><img src="http://130.211.135.58/wp-content/uploads/2015/04/CentralLogging.png" alt="Central Logging Architecture"></p>
+<p>To get our monster working, we need to setup a pipeline of system components.  Each system component is on specific role and has to perform some task in order to keep data points flowing. Lets peek at this pipeline.</p>
+<h3 id="server"><a href="#Server" class="headerlink" title="Server"></a>Server <a href="#server" class="header-anchor">#</a></h3><p>Server is any machine that you want under monitoring. It produces three[atleast] types of metrics. </p>
+<ul>
+<li>System Metrics like CPU, Memory, etc.</li>
+<li>Access logs for web servers</li>
+<li>Application logs for deployed web apps</li>
+</ul>
+<h3 id="datastore"><a href="#Datastore" class="headerlink" title="Datastore"></a>Datastore <a href="#datastore" class="header-anchor">#</a></h3><p>Datastore covers various components which can store data. The most important expectation from them is low latency while querying. It covers MySQL, MSSQL, Couchbase, Memcached like datastores.</p>
+<ul>
+<li>Performance Metrics like IO&#x2019;s, locks, etc.</li>
+<li>System Metrics for DBServer</li>
+<li>Server logs such as slow query logs</li>
+<li>Certain stats which can be obtained by actually querying DB.</li>
+<li>Business Metrics obtained by querying DB.</li>
+</ul>
+<h3 id="web-services"><a href="#Web-Services" class="headerlink" title="Web Services"></a>Web Services <a href="#web-services" class="header-anchor">#</a></h3><p>Most of application consume data from other applications and third party through APIs. If there is some issue with these API, we can see sudden drop in funnel conversion rations and bookings. It is very important to monitor these service&#x2019;s performance. A healthcheck and response time would be first class citizen for such monitoring.</p>
+<h2 id="datamonster"><a href="#DataMonster" class="headerlink" title="DataMonster"></a>DataMonster <a href="#datamonster" class="header-anchor">#</a></h2><p>DataMonster is a task scheduler which we have developed in house. These tasks are configured from Django Admin UI and these tasks are executed by celery workers. Most of the tasks are queries fetching business reports and queries to ES for application &amp; access stats.</p>
+<h2 id="gathering-metrics"><a href="#Gathering-Metrics" class="headerlink" title="Gathering Metrics"></a>Gathering Metrics <a href="#gathering-metrics" class="header-anchor">#</a></h2><p>Once we have identified components to be monitored, we can select/write appropriate agent/processor for getting data points in appropriate format into OpenTSDB and Zabbix.</p>
+<h3 id="system-metrics"><a href="#System-Metrics" class="headerlink" title="System Metrics"></a>System Metrics <a href="#system-metrics" class="header-anchor">#</a></h3><p>System metrics include metrics from CPU, Memory, Disk, Network, etc. For Linux machines we already have <em>Graphite</em>+<em>Diamond</em> in place. We decided to extend <em>Diamond</em> for pushing these stats into OpenTSDB. We wrote a custom handler to get data in proper format and that was about it. But for windows machines, we had to explore for options. Leveraging Performance monitor is on top of our mind. We would also be evaluating <em>scollector</em> for the very same task. UPDATE: scollector has been modified to work over TCP and it is working perfectly.</p>
+<h3 id="applications-logs"><a href="#Applications-Logs" class="headerlink" title="Applications Logs"></a>Applications Logs <a href="#applications-logs" class="header-anchor">#</a></h3><p>Applications produce huge amount of logs. These logs carry valuable information about errors, ambiguous conditions as well as various response codes from third party services. In order to retrieve this information from logs, these logs are collected at a location with the help of syslog ng and then passed on to ES cluster. Useful information can be queried from ES and then converted in the metric for further consumption.</p>
+<h3 id="access-logs"><a href="#Access-Logs" class="headerlink" title="Access Logs"></a>Access Logs <a href="#access-logs" class="header-anchor">#</a></h3><p>Every web server can be configured to produce access logs. Access logs can be used to identify bottlenecks in applications, error pages, visits, page views, downloads, keywords, referring websites, etc. In order to process these logs one has to standardize the pattern for logging. This standardization is relatively easy. Logster tuned for OpenTSDB is being planned for production usage.</p>
+<h3 id="database-performance"><a href="#Database-Performance" class="headerlink" title="Database Performance"></a>Database Performance <a href="#database-performance" class="header-anchor">#</a></h3><p>Database performance is measured in terms of application performance. Critical queries executed and stored procedures invoked, number of connections, transactions are important from that perspective. This data can be fetched from tables or from logs printed by those db. First class members for such monitoring are:</p>
+<ul>
+<li>Slow queries response time</li>
+<li>Critical queries and procedures response time as well as count</li>
+<li>Transactions and connections count</li>
+<li>Exceptions count</li>
+</ul>
+<h3 id="caching-layer"><a href="#Caching-Layer" class="headerlink" title="Caching Layer"></a>Caching Layer <a href="#caching-layer" class="header-anchor">#</a></h3><p>Most of the web applications are backed by caching systems such couchbase and memcached. It is equally important to measure the performance and throughput of this system so that we can efficiently utilize the available resources. we are as of now utilizing cbstats and memcached stat command to receive stats in out system.</p>
+<h2 id="observing-trends"><a href="#Observing-Trends" class="headerlink" title="Observing Trends"></a>Observing Trends <a href="#observing-trends" class="header-anchor">#</a></h2><p>One can easily observe trends from OpenTSDB&#x2019;s own GUI or from Grafana. If you want to create dashboards, metrilyx can be used.</p>
+<h2 id="generating-alerts"><a href="#Generating-Alerts" class="headerlink" title="Generating Alerts"></a>Generating Alerts <a href="#generating-alerts" class="header-anchor">#</a></h2><p>In order to generate various alerts, we can use zabbix. Zabbix is an open source tool which has multiple components. Core component involves, zabbix server. This zabbix server has capability to create various rules on collected data and it then can send an alert to a mail group. Cool, isn&#x2019;t it?</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/" class="prev">上一篇</a><a href="/2015/03/07/issuefix-missing-artifact/" class="next">下一篇</a></div><div class="copyright"><p>© 2013 - 2016 <a href="http://yoursite.com">Santosh Pingale</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
