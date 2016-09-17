@@ -45,7 +45,7 @@
 <li>And apparently only one instance worked: Executing <code>exit()</code> on one casper instance caused all other instances to exit.</li>
 </ul>
 <h3 id="solutions"><a href="#Solutions" class="headerlink" title="Solutions:"></a>Solutions: <a href="#solutions" class="header-anchor">#</a></h3><p>To deal with the first problem jQuery is injected in every result page and with the help of <code>$.ready</code> page was scraped at the very right time. This solution eliminated both mapping and zero results problem.<br>For the second problem, status is added to each <code>casper</code> instance with the help of <code>casper.completed = false</code>. Status was then modified to true once instance associated with it has executed all the steps. All the statuses were checked before calling <code>exit()</code> and only iff statuses for all the<code>casper</code> instances are set to true, <code>exit()</code> was issued.</p>
-</div><p></p></article></div></section><footer><div class="paginator"><a href="/2015/02/22/javascript-equality-truthyness/" class="prev">PREV</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'codefudge';
+</div></article></div></section><footer><div class="paginator"><a href="/2015/02/22/javascript-equality-truthyness/" class="prev">PREV</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'codefudge';
 var disqus_identifier = '2014/08/25/casperjs-and-navigation-parallelism/';
 var disqus_title = 'CasperJS and Navigation Parallelism';
 var disqus_url = 'http://codailama.com/2014/08/25/casperjs-and-navigation-parallelism/';
