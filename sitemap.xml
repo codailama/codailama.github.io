@@ -2,16 +2,44 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://codailama.com/2015/03/04/hdfs-explained-as-comic/</loc>
+    <loc>http://codailama.com/2015/03/06/hive-partitioning-tips-and-hows/</loc>
     
-    <lastmod>2016-09-17T06:30:30.000Z</lastmod>
+    <lastmod>2016-09-27T18:37:36.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://codailama.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</loc>
+    
+    <lastmod>2016-09-27T18:34:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://codailama.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</loc>
+    
+    <lastmod>2016-09-27T18:26:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://codailama.com/2015/04/29/monster-centralized-monitoring-system/</loc>
+    
+    <lastmod>2016-09-27T18:26:02.000Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://codailama.com/2015/03/04/hdfs-how-file-is-written/</loc>
     
-    <lastmod>2016-09-14T10:38:30.000Z</lastmod>
+    <lastmod>2016-09-27T18:25:15.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://codailama.com/2015/03/04/hdfs-explained-as-comic/</loc>
+    
+    <lastmod>2016-09-17T06:30:30.000Z</lastmod>
     
   </url>
   
@@ -37,37 +65,9 @@
   </url>
   
   <url>
-    <loc>http://codailama.com/2015/03/06/hive-partitioning-tips-and-hows/</loc>
-    
-    <lastmod>2016-09-14T09:56:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://codailama.com/2015/03/07/issuefix-missing-artifact/</loc>
     
     <lastmod>2016-09-14T09:33:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://codailama.com/2015/04/29/monster-centralized-monitoring-system/</loc>
-    
-    <lastmod>2016-09-14T09:24:23.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://codailama.com/2015/07/14/understanding-java-wrappers-and-collections-memory-usage/</loc>
-    
-    <lastmod>2016-09-14T09:19:13.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://codailama.com/2015/09/19/scraping-alchemist-celery-selenium-phantomjs-and-tor/</loc>
-    
-    <lastmod>2016-09-14T08:59:05.000Z</lastmod>
     
   </url>
   
